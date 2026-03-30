@@ -169,21 +169,26 @@ async function carregarFicha() {
         if (docSnap.exists()) {
             const dados = docSnap.data();
 
-            // 1. Reordenar as seções ANTES de preencher os dados
-            if (dados.ordemSecoes && Array.isArray(dados.ordemSecoes)) {
-                const areaArrastavel = document.getElementById("area-arrastavel");
-                
-                // Primeiro, organiza o que já estava salvo
-                dados.ordemSecoes.forEach(idSecao => {
-                    const secao = document.getElementById(idSecao);
-                    if (secao) areaArrastavel.appendChild(secao);
-                });
+            // 1. REORDENAR AS DUAS COLUNAS ANTES DE PREENCHER OS DADOS
+            const colEsq = document.getElementById("coluna-esquerda");
+            const colDir = document.getElementById("coluna-direita");
 
-                // Depois, pega qualquer seção NOVA (que não estava salva) e joga para o final
-                Array.from(areaArrastavel.children).forEach(secao => {
-                    if (!dados.ordemSecoes.includes(secao.id)) {
-                        areaArrastavel.appendChild(secao);
-                    }
+            // Se for uma ficha antiga (que só tinha uma coluna), joga tudo pra esquerda temporariamente
+            if (dados.ordemSecoes && !dados.ordemEsquerda) {
+                dados.ordemEsquerda = dados.ordemSecoes;
+            }
+
+            if (dados.ordemEsquerda && Array.isArray(dados.ordemEsquerda)) {
+                dados.ordemEsquerda.forEach(idSecao => {
+                    const secao = document.getElementById(idSecao);
+                    if (secao && colEsq) colEsq.appendChild(secao);
+                });
+            }
+
+            if (dados.ordemDireita && Array.isArray(dados.ordemDireita)) {
+                dados.ordemDireita.forEach(idSecao => {
+                    const secao = document.getElementById(idSecao);
+                    if (secao && colDir) colDir.appendChild(secao);
                 });
             }
 
@@ -245,7 +250,6 @@ btnSalvar.addEventListener("click", async () => {
     textoBtnSalvar.innerText = "Salvando...";
     const dadosParaSalvar = {};
     
-    // AQUI ESTAVA O ERRO! AGORA ELE SALVA O EDITOR RICO CORRETAMENTE:
     document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico").forEach(el => {
         if (el.id) {
             dadosParaSalvar[el.id] = el.classList.contains('editor-rico') ? el.innerHTML : el.value;
@@ -270,18 +274,23 @@ btnSalvar.addEventListener("click", async () => {
     });
     dadosParaSalvar.inventario = itensParaSalvar;
 
-    // --- SALVAR A ORDEM DAS SEÇÕES ---
-    const ordem = [];
-    document.querySelectorAll("#area-arrastavel > .secao-arrastavel").forEach(secao => {
-        ordem.push(secao.id);
+    // --- SALVAR A ORDEM DAS DUAS COLUNAS ---
+    const ordemEsq = [];
+    document.querySelectorAll("#coluna-esquerda > .secao-arrastavel").forEach(secao => {
+        ordemEsq.push(secao.id);
     });
-    dadosParaSalvar.ordemSecoes = ordem;
+    dadosParaSalvar.ordemEsquerda = ordemEsq;
+
+    const ordemDir = [];
+    document.querySelectorAll("#coluna-direita > .secao-arrastavel").forEach(secao => {
+        ordemDir.push(secao.id);
+    });
+    dadosParaSalvar.ordemDireita = ordemDir;
 
     try {
         await setDoc(fichaRef, dadosParaSalvar);
         atualizarTudo();
         textoBtnSalvar.innerText = "Salvo com sucesso!";
-        avisoNaoSalvo.classList.remove("hidden"); // Remover isso daqui a pouco se não precisar
         avisoNaoSalvo.classList.add("hidden");
         setTimeout(() => { textoBtnSalvar.innerText = "Salvar Ficha"; }, 2000);
     } catch (erro) {
@@ -299,29 +308,79 @@ window.limparCalc = limparCalc;
 window.apagarUltimo = apagarUltimo;
 window.calcularResultado = calcularResultado;
 
-// Inicializa a biblioteca SortableJS na área de seções
-const areaArrastavel = document.getElementById("area-arrastavel");
-if (areaArrastavel && window.Sortable) {
-    new Sortable(areaArrastavel, {
-        handle: '.drag-handle',
-        animation: 200,
-        ghostClass: 'opacity-40',
+// INICIALIZA A BIBLIOTECA SORTABLEJS NAS DUAS COLUNAS
+const colEsq = document.getElementById("coluna-esquerda");
+const colDir = document.getElementById("coluna-direita");
+
+const configSortableColunas = {
+    group: 'fichas', // ESSA É A MÁGICA: permite arrastar entre as duas colunas!
+    handle: '.drag-handle',
+    animation: 200,
+    ghostClass: 'opacity-40',
+    onEnd: function () {
+        avisoNaoSalvo.classList.remove("hidden");
+    }
+};
+
+if (colEsq && window.Sortable) new Sortable(colEsq, configSortableColunas);
+if (colDir && window.Sortable) new Sortable(colDir, configSortableColunas);
+
+// INICIALIZA A BIBLIOTECA SORTABLEJS DENTRO DO INVENTÁRIO
+const areaInventario = document.getElementById("lista-itens");
+if (areaInventario && window.Sortable) {
+    new Sortable(areaInventario, {
+        handle: '.drag-item',
+        animation: 150,
+        ghostClass: 'opacity-50',
         onEnd: function () {
             avisoNaoSalvo.classList.remove("hidden");
         }
     });
 }
 
-// INICIALIZA A BIBLIOTECA SORTABLEJS DENTRO DO INVENTÁRIO
-const areaInventario = document.getElementById("lista-itens");
-if (areaInventario && window.Sortable) {
-    new Sortable(areaInventario, {
-        handle: '.drag-item', // Usa apenas o ícone de 6 bolinhas do item
-        animation: 150, // Um pouco mais rápido pros itens
-        ghostClass: 'opacity-50', // Efeito visual ao arrastar
-        onEnd: function () {
-            // Ao soltar o item na nova ordem, dispara o aviso de não salvo
-            avisoNaoSalvo.classList.remove("hidden");
+// ==========================================
+// MOVER SEÇÕES COM AS SETAS (Alternativa ao Drag and Drop)
+// ==========================================
+window.moverSecao = function(botao, direcao) {
+    // Acha a seção inteira onde o botão foi clicado
+    const secao = botao.closest('.secao-arrastavel');
+    if (!secao) return;
+
+    if (direcao === -1) { // SUBIR
+        const anterior = secao.previousElementSibling;
+        // Se existe uma seção acima, troca de lugar com ela
+        if (anterior && anterior.classList.contains('secao-arrastavel')) {
+            secao.parentNode.insertBefore(secao, anterior);
+            document.getElementById("avisoNaoSalvo").classList.remove("hidden");
         }
-    });
-}
+    } else if (direcao === 1) { // DESCER
+        const proximo = secao.nextElementSibling;
+        // Se existe uma seção abaixo, joga essa pra depois dela
+        if (proximo && proximo.classList.contains('secao-arrastavel')) {
+            secao.parentNode.insertBefore(secao, proximo.nextElementSibling);
+            document.getElementById("avisoNaoSalvo").classList.remove("hidden");
+        }
+    }
+};
+
+// ==========================================
+// MOVER PARA A OUTRA COLUNA
+// ==========================================
+window.moverColuna = function(botao) {
+    // Acha a seção inteira onde o botão foi clicado
+    const secao = botao.closest('.secao-arrastavel');
+    if (!secao) return;
+
+    const colEsq = document.getElementById("coluna-esquerda");
+    const colDir = document.getElementById("coluna-direita");
+
+    // Se estiver na esquerda, joga pro final da direita. E vice-versa.
+    if (secao.parentNode.id === "coluna-esquerda") {
+        colDir.appendChild(secao);
+    } else {
+        colEsq.appendChild(secao);
+    }
+
+    // Aciona o aviso de salvar
+    document.getElementById("avisoNaoSalvo").classList.remove("hidden");
+};

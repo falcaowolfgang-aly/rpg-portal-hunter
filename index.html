@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
 
-    <header class="text-center mb-10">
+    <header class="text-center mb-10 mt-10">
         <h1 class="text-5xl font-bold text-red-500 mb-4">Portal Hunter</h1>
         <p class="text-xl text-gray-400">Selecione seu personagem</p>
     </header>
@@ -21,71 +21,78 @@
         <div class="swiper-wrapper">
             
             <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl flex flex-col justify-between hover:border-red-500 transition-colors duration-300">
-                    
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <h2 id="card-nome-1" class="text-3xl font-bold text-white mb-2 line-clamp-2">Personagem 1</h2>
-                        <p id="card-nivel-1" class="text-sm text-gray-400 font-bold mb-4">Nível 1</p>
-                        <p id="card-recado-1" class="text-red-400 italic truncate w-full px-2">...</p>
+                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-red-500 transition-colors duration-300 group">
+                    <img src="img/char1.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
+                        <div class="mb-2">
+                            <h2 id="card-nome-1" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 1</h2>
+                            <p id="card-nivel-1" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
+                            <p id="card-recado-1" class="text-red-400 italic truncate w-full px-2 font-medium drop-shadow-md">...</p>
+                        </div>
+                        <a href="fichas/ficha.html?id=jogador1" class="w-full inline-block bg-red-600/90 hover:bg-red-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-4 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                            Abrir Ficha 1
+                        </a>
                     </div>
-                    
-                    <a href="fichas/ficha.html?id=jogador1" class="w-full inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-6 shadow-lg">
-                        Abrir Ficha 1
-                    </a>
                 </div>
             </div>
 
             <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl flex flex-col justify-between hover:border-blue-500 transition-colors duration-300">
-                    
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <h2 id="card-nome-2" class="text-3xl font-bold text-white mb-2 line-clamp-2">Personagem 2</h2>
-                        <p id="card-nivel-2" class="text-sm text-gray-400 font-bold mb-4">Nível 1</p>
-                        <p id="card-recado-2" class="text-blue-400 italic truncate w-full px-2">...</p>
+                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-blue-500 transition-colors duration-300 group">
+                    <img src="img/char2.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
+                        <div class="mb-2">
+                            <h2 id="card-nome-2" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 2</h2>
+                            <p id="card-nivel-2" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
+                            <p id="card-recado-2" class="text-blue-400 italic truncate w-full px-2 font-medium drop-shadow-md">...</p>
+                        </div>
+                        <a href="fichas/ficha.html?id=jogador2" class="w-full inline-block bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-4 shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                            Abrir Ficha 2
+                        </a>
                     </div>
-                    
-                    <a href="fichas/ficha.html?id=jogador2" class="w-full inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-6 shadow-lg">
-                        Abrir Ficha 2
-                    </a>
                 </div>
             </div>
 
             <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl flex flex-col justify-between hover:border-green-500 transition-colors duration-300">
-                    
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <h2 id="card-nome-3" class="text-3xl font-bold text-white mb-2 line-clamp-2">Personagem 3</h2>
-                        <p id="card-nivel-3" class="text-sm text-gray-400 font-bold mb-4">Nível 1</p>
-                        <p id="card-recado-3" class="text-green-400 italic truncate w-full px-2">...</p>
+                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-green-500 transition-colors duration-300 group">
+                    <img src="img/char3.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
+                        <div class="mb-2">
+                            <h2 id="card-nome-3" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 3</h2>
+                            <p id="card-nivel-3" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
+                            <p id="card-recado-3" class="text-green-400 italic truncate w-full px-2 font-medium drop-shadow-md">...</p>
+                        </div>
+                        <a href="fichas/ficha.html?id=jogador3" class="w-full inline-block bg-green-600/90 hover:bg-green-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-4 shadow-[0_0_15px_rgba(22,163,74,0.5)]">
+                            Abrir Ficha 3
+                        </a>
                     </div>
-                    
-                    <a href="fichas/ficha.html?id=jogador3" class="w-full inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-6 shadow-lg">
-                        Abrir Ficha 3
-                    </a>
                 </div>
             </div>
 
             <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl flex flex-col justify-between hover:border-purple-500 transition-colors duration-300">
-                    
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <h2 id="card-nome-4" class="text-3xl font-bold text-white mb-2 line-clamp-2">Personagem 4</h2>
-                        <p id="card-nivel-4" class="text-sm text-gray-400 font-bold mb-4">Nível 1</p>
-                        <p id="card-recado-4" class="text-purple-400 italic truncate w-full px-2">...</p>
+                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-purple-500 transition-colors duration-300 group">
+                    <img src="img/char4.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
+                        <div class="mb-2">
+                            <h2 id="card-nome-4" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 4</h2>
+                            <p id="card-nivel-4" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
+                            <p id="card-recado-4" class="text-purple-400 italic truncate w-full px-2 font-medium drop-shadow-md">...</p>
+                        </div>
+                        <a href="fichas/ficha.html?id=jogador4" class="w-full inline-block bg-purple-600/90 hover:bg-purple-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-4 shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+                            Abrir Ficha 4
+                        </a>
                     </div>
-                    
-                    <a href="fichas/ficha.html?id=jogador4" class="w-full inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-6 shadow-lg">
-                        Abrir Ficha 4
-                    </a>
                 </div>
             </div>
 
-        </div>
-
-        <div class="swiper-button-next text-red-500"></div>
+        </div> <div class="swiper-button-next text-red-500"></div>
         <div class="swiper-button-prev text-red-500"></div>
         <div class="swiper-pagination"></div>
     </div>
+
     <section class="w-full max-w-5xl mt-12 bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-2xl relative mb-12">
         
         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-gray-700 pb-4 gap-4">
@@ -175,6 +182,7 @@
 
         </div>
     </section>
+
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
