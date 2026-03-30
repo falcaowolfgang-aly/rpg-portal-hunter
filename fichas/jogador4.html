@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha - Jogador 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <style>
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-8">
+
+    <nav class="max-w-5xl mx-auto mb-6">
+        <a href="../index.html" class="inline-block text-red-500 hover:text-red-400 font-bold transition duration-300">
+            &larr; Voltar para o Portal
+        </a>
+    </nav>
+
+    <main class="max-w-5xl mx-auto bg-gray-800 p-6 md:p-10 rounded-lg border border-gray-700 shadow-2xl">
+        
+        <header class="border-b border-gray-700 pb-6 mb-8 flex flex-col md:flex-row justify-between md:items-end gap-6">
+            <div class="flex-1 w-full">
+                <label for="nome" class="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Nome do Personagem</label>
+                <input type="text" id="nome" placeholder="Digite o nome..." class="w-full bg-transparent border-b-2 border-gray-600 focus:border-purple-500 outline-none text-3xl md:text-4xl font-bold text-white py-2 transition-colors">
+                <input type="text" id="recado" placeholder="Recado" class="w-full bg-transparent border-none text-lg text-purple-400 font-semibold mt-3 outline-none placeholder-purple-900/50 focus:ring-0">
+                </div>
+                <div class="w-24 md:text-right">
+                <label for="nivel" class="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-1 md:text-right">Nível</label>
+                <input type="number" id="nivel" value="1" min="1" class="w-full bg-gray-900 border border-gray-600 focus:border-purple-500 rounded-md outline-none text-2xl font-bold text-white py-2 text-center transition-colors">
+            </div>
+        </header>
+
+        <div id="area-arrastavel" class="flex flex-col gap-8">
+
+            <section id="sec-caracteristicas" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                    <h2 class="text-2xl font-bold text-white uppercase tracking-widest text-sm opacity-70">Características</h2>
+                    <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="tipoNen" class="block text-xs font-bold text-gray-400 uppercase mb-1">Tipo de Nen</label>
+                        <input type="text" id="tipoNen" class="w-full bg-gray-900 border border-gray-600 focus:border-blue-500 rounded p-2 text-white outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label for="estiloLuta" class="block text-xs font-bold text-gray-400 uppercase mb-1">Estilo de Luta</label>
+                        <input type="text" id="estiloLuta" class="w-full bg-gray-900 border border-gray-600 focus:border-blue-500 rounded p-2 text-white outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label for="dinheiro" class="block text-xs font-bold text-green-400 uppercase mb-1">Dinheiro</label>
+                        <input type="text" id="dinheiro" class="w-full bg-gray-900 border border-gray-600 focus:border-green-500 rounded p-2 text-white outline-none transition-colors">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 col-span-1 md:col-span-2">
+                        <div>
+                            <label for="idade" class="block text-xs font-bold text-gray-400 uppercase mb-1">Idade</label>
+                            <input type="text" id="idade" class="w-full bg-gray-900 border border-gray-600 focus:border-red-500 rounded p-2 text-white outline-none">
+                        </div>
+                        <div>
+                            <label for="altura" class="block text-xs font-bold text-gray-400 uppercase mb-1">Altura</label>
+                            <input type="text" id="altura" class="w-full bg-gray-900 border border-gray-600 focus:border-red-500 rounded p-2 text-white outline-none">
+                        </div>
+                        <div>
+                            <label for="peso" class="block text-xs font-bold text-gray-400 uppercase mb-1">Peso</label>
+                            <input type="text" id="peso" class="w-full bg-gray-900 border border-gray-600 focus:border-red-500 rounded p-2 text-white outline-none">
+                        </div>
+                        <div>
+                            <label for="aniversario" class="block text-xs font-bold text-gray-400 uppercase mb-1">Aniversário</label>
+                            <input type="text" id="aniversario" class="w-full bg-gray-900 border border-gray-600 focus:border-red-500 rounded p-2 text-white outline-none">
+                        </div>
+                    </div>
+                    <div class="col-span-1 md:col-span-3">
+                        <label for="gostos" class="block text-xs font-bold text-gray-400 uppercase mb-1">Gostos / Personalidade</label>
+                        <textarea id="gostos" rows="2" class="w-full bg-gray-900 border border-gray-600 focus:border-red-500 rounded p-2 text-white outline-none resize-none transition-colors"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-status" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                    <h2 class="text-2xl font-bold text-white uppercase tracking-widest text-sm opacity-70">Status e Atributos Base</h2>
+                    <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gray-900 p-4 rounded-lg border border-red-900 flex flex-col justify-between">
+                        <label class="block text-sm font-bold text-red-500 uppercase text-center mb-2">Pontos de Vida (HP)</label>
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <input type="number" id="hpAtual" placeholder="atual" class="w-20 bg-transparent border-b-2 border-red-600 text-center text-2xl font-bold text-white outline-none placeholder-gray-600">
+                            <span class="text-2xl text-gray-500">/</span>
+                            <input type="number" id="hpMax" placeholder="máx" class="w-20 bg-transparent border-b-2 border-gray-600 text-center text-xl font-bold text-gray-400 outline-none placeholder-gray-700">
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+                            <div id="barraHp" class="bg-red-600 h-full rounded-full transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded-lg border border-blue-900 flex flex-col justify-between">
+                        <label class="block text-sm font-bold text-blue-500 uppercase text-center mb-2">Pontos de Nen (PN)</label>
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <input type="number" id="pnAtual" placeholder="atual" class="w-20 bg-transparent border-b-2 border-blue-600 text-center text-2xl font-bold text-white outline-none placeholder-gray-600">
+                            <span class="text-2xl text-gray-500">/</span>
+                            <input type="number" id="pnMax" placeholder="máx" class="w-20 bg-transparent border-b-2 border-gray-600 text-center text-xl font-bold text-gray-400 outline-none placeholder-gray-700">
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+                            <div id="barraPn" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded-lg border border-yellow-700 flex flex-col justify-between">
+                        <label class="block text-sm font-bold text-yellow-500 uppercase text-center mb-2">Pontos de Reforço (PR)</label>
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <input type="number" id="prAtual" placeholder="atual" class="w-20 bg-transparent border-b-2 border-yellow-600 text-center text-2xl font-bold text-white outline-none placeholder-gray-600">
+                            <span class="text-2xl text-gray-500">/</span>
+                            <input type="number" id="prMax" placeholder="máx" class="w-20 bg-transparent border-b-2 border-gray-600 text-center text-xl font-bold text-gray-400 outline-none placeholder-gray-700">
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+                            <div id="barraPr" class="bg-yellow-500 h-full rounded-full transition-all duration-500" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col items-center gap-1">
+                        <label for="corpo" class="block text-xs font-bold text-gray-400 uppercase mb-1">Corpo</label>
+                        <input type="number" id="corpo" placeholder="10" class="w-full bg-transparent text-center text-5xl font-bold text-white outline-none">
+                        <span id="modCorpo" class="text-sm font-semibold text-red-400 mt-1 bg-gray-800 px-3 py-0.5 rounded-full">mod +0</span>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col items-center gap-1">
+                        <label for="movimento" class="block text-xs font-bold text-gray-400 uppercase mb-1">Movimento</label>
+                        <input type="number" id="movimento" placeholder="10" class="w-full bg-transparent text-center text-5xl font-bold text-white outline-none">
+                        <span id="modMovimento" class="text-sm font-semibold text-blue-400 mt-1 bg-gray-800 px-3 py-0.5 rounded-full">mod +0</span>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col items-center gap-1">
+                        <label for="mente" class="block text-xs font-bold text-gray-400 uppercase mb-1">Mente</label>
+                        <input type="number" id="mente" placeholder="10" class="w-full bg-transparent text-center text-5xl font-bold text-white outline-none">
+                        <span id="modMente" class="text-sm font-semibold text-green-400 mt-1 bg-gray-800 px-3 py-0.5 rounded-full">mod +0</span>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col items-center gap-1">
+                        <label for="espirito" class="block text-xs font-bold text-gray-400 uppercase mb-1">Espírito</label>
+                        <input type="number" id="espirito" placeholder="10" class="w-full bg-transparent text-center text-5xl font-bold text-white outline-none">
+                        <span id="modEspirito" class="text-sm font-semibold text-purple-400 mt-1 bg-gray-800 px-3 py-0.5 rounded-full">mod +0</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-pericias" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-2">
+                    <h2 class="text-2xl font-bold text-white uppercase tracking-widest text-sm opacity-70">Perícias</h2>
+                    <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="space-y-3">
+                        <h3 class="text-red-500 font-bold text-xs uppercase mb-2 border-l-4 border-red-600 pl-2">Corpo</h3>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-red-900 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="checkAtletismo" class="w-4 h-4 accent-red-600 cursor-pointer">
+                                <label for="checkAtletismo" class="text-sm font-medium cursor-pointer">Atletismo</label>
+                            </div>
+                            <span id="valAtletismo" class="font-bold text-red-400 text-lg">+0</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-blue-500 font-bold text-xs uppercase mb-2 border-l-4 border-blue-600 pl-2">Movimento</h3>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-blue-900 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="checkAcrobacia" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                                <label for="checkAcrobacia" class="text-sm font-medium cursor-pointer">Acrobacia</label>
+                            </div>
+                            <span id="valAcrobacia" class="font-bold text-blue-400 text-lg">+0</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-blue-900 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="checkFurtividade" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                                <label for="checkFurtividade" class="text-sm font-medium cursor-pointer">Furtividade</label>
+                            </div>
+                            <span id="valFurtividade" class="font-bold text-blue-400 text-lg">+0</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-green-500 font-bold text-xs uppercase mb-2 border-l-4 border-green-600 pl-2">Mente</h3>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkInvestigacao" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkInvestigacao" class="font-medium cursor-pointer">Investigação</label></div><span id="valInvestigacao" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkNatureza" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkNatureza" class="font-medium cursor-pointer">Natureza</label></div><span id="valNatureza" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkAdestramento" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkAdestramento" class="font-medium cursor-pointer">Adestramento</label></div><span id="valAdestramento" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkIntuicao" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkIntuicao" class="font-medium cursor-pointer">Intuição</label></div><span id="valIntuicao" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkMedicina" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkMedicina" class="font-medium cursor-pointer">Medicina</label></div><span id="valMedicina" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkPercepcao" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkPercepcao" class="font-medium cursor-pointer">Percepção</label></div><span id="valPercepcao" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkSobrevivencia" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkSobrevivencia" class="font-medium cursor-pointer">Sobrevivência</label></div><span id="valSobrevivencia" class="font-bold text-green-400">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-green-900 transition-colors"><div class="flex items-center gap-2 text-xs"><input type="checkbox" id="checkHistoria" class="w-4 h-4 accent-green-600 cursor-pointer"><label for="checkHistoria" class="font-medium cursor-pointer">História</label></div><span id="valHistoria" class="font-bold text-green-400">+0</span></div>
+                    </div>
+                    <div class="space-y-3">
+                        <h3 class="text-purple-500 font-bold text-xs uppercase mb-2 border-l-4 border-purple-600 pl-2">Espírito</h3>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-purple-900 transition-colors"><div class="flex items-center gap-2"><input type="checkbox" id="checkAtuacao" class="w-4 h-4 accent-purple-600 cursor-pointer"><label for="checkAtuacao" class="text-sm font-medium cursor-pointer">Atuação</label></div><span id="valAtuacao" class="font-bold text-purple-400 text-lg">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-purple-900 transition-colors"><div class="flex items-center gap-2"><input type="checkbox" id="checkEnganacao" class="w-4 h-4 accent-purple-600 cursor-pointer"><label for="checkEnganacao" class="text-sm font-medium cursor-pointer">Enganação</label></div><span id="valEnganacao" class="font-bold text-purple-400 text-lg">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-purple-900 transition-colors"><div class="flex items-center gap-2"><input type="checkbox" id="checkIntimidacao" class="w-4 h-4 accent-purple-600 cursor-pointer"><label for="checkIntimidacao" class="text-sm font-medium cursor-pointer">Intimidação</label></div><span id="valIntimidacao" class="font-bold text-purple-400 text-lg">+0</span></div>
+                        <div class="flex items-center justify-between bg-gray-900 p-2 rounded border border-gray-700 hover:border-purple-900 transition-colors"><div class="flex items-center gap-2"><input type="checkbox" id="checkPersuasao" class="w-4 h-4 accent-purple-600 cursor-pointer"><label for="checkPersuasao" class="text-sm font-medium cursor-pointer">Persuasão</label></div><span id="valPersuasao" class="font-bold text-purple-400 text-lg">+0</span></div>
+                    </div>
+                </div>
+            </section>
+
+           <section id="sec-habilidades" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Habilidades Gerais</h2>
+                    </div>
+                    <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden focus-within:border-blue-500 transition-colors">
+                    <div class="bg-gray-800 p-2 border-b border-gray-700 flex flex-wrap gap-2">
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded font-bold transition">B</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('italic', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded italic transition">I</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('underline', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded underline transition">U</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('strikeThrough', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded line-through transition">S</button>
+                    </div>
+                    <div id="habilidadesGerais" contenteditable="true" spellcheck="false" class="editor-rico w-full bg-transparent text-gray-200 outline-none min-h-[200px] p-4 leading-relaxed text-sm focus:bg-gray-800/50 transition-colors"></div>
+                </div>
+            </section>
+
+            <section id="sec-hatsu" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Hatsu</h2>
+                    </div>
+                    <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden focus-within:border-red-500 transition-colors">
+                    <div class="bg-gray-800 p-2 border-b border-gray-700 flex flex-wrap gap-2">
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded font-bold transition">B</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('italic', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded italic transition">I</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('underline', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded underline transition">U</button>
+                        <button type="button" onmousedown="event.preventDefault(); document.execCommand('strikeThrough', false, null)" class="text-gray-400 hover:text-white hover:bg-gray-700 px-3 py-1 rounded line-through transition">S</button>
+                    </div>
+                    <div id="hatsu" contenteditable="true" spellcheck="false" class="editor-rico w-full bg-transparent text-gray-200 outline-none min-h-[200px] p-4 leading-relaxed text-sm focus:bg-gray-800/50 transition-colors"></div>
+                </div>
+            </section>
+
+            <section id="sec-inventario" class="secao-arrastavel bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl relative">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-2">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        <h2 class="text-2xl font-bold text-white uppercase tracking-widest text-sm opacity-70">Inventário</h2>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <button id="add-item" type="button" class="bg-green-700 hover:bg-green-600 text-white text-xs font-bold py-2 px-4 rounded-full transition-all">
+                            + ADICIONAR ITEM
+                        </button>
+                        <div class="drag-handle cursor-move text-gray-500 hover:text-white transition p-2 bg-gray-900 rounded" title="Arraste para reordenar">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div id="lista-itens" class="space-y-4"></div>
+            </section>
+
+        </div> </main>
+
+    <div class="fixed bottom-6 right-6 flex flex-col items-end z-50 gap-4">
+        <div id="modalCalculadora" class="hidden bg-gray-900 border-2 border-gray-700 w-64 rounded-xl shadow-2xl p-4 mb-2 animate-bounce-in">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Calculadora</span>
+                <button id="fecharCalc" class="text-gray-500 hover:text-red-500 text-xl font-bold">&times;</button>
+            </div>
+            <input type="text" id="visorCalc" readonly class="w-full bg-gray-800 text-right text-2xl p-2 rounded mb-4 text-white font-mono border border-gray-700 outline-none" placeholder="0">
+            <div class="grid grid-cols-4 gap-2">
+                <button class="btn-calc bg-gray-700 p-2 rounded hover:bg-gray-600 font-bold" onclick="limparCalc()">C</button>
+                <button class="btn-calc bg-gray-700 p-2 rounded hover:bg-gray-600 font-bold" onclick="addDigito('/')">/</button>
+                <button class="btn-calc bg-gray-700 p-2 rounded hover:bg-gray-600 font-bold" onclick="addDigito('*')">*</button>
+                <button class="btn-calc bg-red-900 p-2 rounded hover:bg-red-800 font-bold" onclick="apagarUltimo()">&larr;</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('7')">7</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('8')">8</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('9')">9</button>
+                <button class="btn-calc bg-blue-900 p-2 rounded hover:bg-blue-800 font-bold" onclick="addDigito('-')">-</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('4')">4</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('5')">5</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('6')">6</button>
+                <button class="btn-calc bg-blue-900 p-2 rounded hover:bg-blue-800 font-bold" onclick="addDigito('+')">+</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('1')">1</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('2')">2</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('3')">3</button>
+                <button class="btn-calc bg-green-700 p-2 rounded hover:bg-green-600 font-bold row-span-2" onclick="calcularResultado()">=</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700 col-span-2" onclick="addDigito('0')">0</button>
+                <button class="btn-calc bg-gray-800 p-2 rounded hover:bg-gray-700" onclick="addDigito('.')">.</button>
+            </div>
+        </div>
+
+        <button id="btnAbrirCalc" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-full shadow-2xl border-2 border-gray-600 transition transform hover:scale-110 active:scale-95">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+        </button>
+        <div class="flex flex-col items-end">
+            <span id="avisoNaoSalvo" class="text-yellow-400 text-sm font-bold mb-2 bg-gray-900 px-3 py-1 rounded-full shadow border border-yellow-700 hidden">⚠️ Alterações não salvas</span>
+            <button id="btnSalvar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl flex items-center gap-2 border-2 border-red-800 transition transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                <span id="textoBtnSalvar">Salvar Ficha</span>
+            </button>
+        </div>
+    </div>
+    
+    <script type="module" src="../js/ficha.js"></script>
+</body>
+</html>

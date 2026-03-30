@@ -1,0 +1,24 @@
+/* Ajustando a cor das bolinhas de paginação para combinar com o tema */
+.swiper-pagination-bullet-active {
+    background-color: #ef4444 !important; /* Cor red-500 */
+}
+
+/* Dá um espaço extra em baixo para a bolinha não grudar no card */
+.swiper-pagination {
+    bottom: 0px !important;
+}
+
+/* Estilo dos botões da calculadora */
+.btn-calc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.125rem; /* equivalente ao text-lg */
+    transition: all 150ms ease;
+    cursor: pointer;
+}
+
+.btn-calc:active {
+    transform: scale(0.95); /* efeito de clique */
+}
