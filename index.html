@@ -11,7 +11,37 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="fixed top-1/4 left-0 z-50 flex items-start">
+        
+        <button id="btn-iniciativa" class="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-red-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+            <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Iniciativa</span>
+        </button>
 
+        <div id="painel-iniciativa" class="hidden ml-2 w-80 bg-gray-900 border-2 border-red-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
+            
+            <div id="iniciativa-view-mode" class="block">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">
+                    <h3 class="text-white font-bold uppercase tracking-wider text-sm">Ordem de Combate</h3>
+                    <button id="btn-editar-iniciativa" class="text-gray-400 hover:text-yellow-400 transition-colors" title="Editar Iniciativa">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>
+                </div>
+                <div id="iniciativa-display" class="text-gray-300 text-sm whitespace-pre-wrap min-h-[80px] font-mono leading-relaxed">Nenhum combate ativo.</div>
+            </div>
+
+            <div id="iniciativa-edit-mode" class="hidden">
+                <div class="border-b border-gray-700 pb-2 mb-3">
+                    <h3 class="text-yellow-500 font-bold uppercase tracking-wider text-sm">Editando...</h3>
+                </div>
+                <textarea id="iniciativa-textarea" rows="6" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 outline-none focus:border-yellow-500 resize-none font-mono text-sm" placeholder="Ex:&#10;1. Satsu (20)&#10;2. Goblin 1 (15)"></textarea>
+                <button id="btn-confirmar-iniciativa" class="mt-3 w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 rounded shadow transition-colors">
+                    CONFIRMAR
+                </button>
+            </div>
+
+        </div>
+    </div>
     <header class="text-center mb-10 mt-10">
         <h1 class="text-5xl font-bold text-red-500 mb-4">Portal Hunter</h1>
         <p class="text-xl text-gray-400">Selecione seu personagem</p>
@@ -181,9 +211,108 @@
             </div>
 
         </div>
-    </section>
 
+        
+    </section>
+    <a href="https://www.owlbear.rodeo/room/1A3GcSnep0cP/The%20Waste%20Lime" target="_blank" class="group relative flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-700 border-2 border-purple-600 hover:border-purple-400 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+    
+    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600/0 via-purple-600/10 to-purple-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400 group-hover:text-purple-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+    </svg>
+
+    <span>Acessar Battlemap</span>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 absolute top-2 right-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+</a>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script type="module" src="js/main.js"></script>
+
+    <script type="module">
+        // Importa o Firebase e a função mágica "onSnapshot"
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Suas chaves do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp9MzVTjccwHoXvZSiVNjK36nbVf41rIM",
+            authDomain: "meu-rpg-fichas.firebaseapp.com",
+            projectId: "meu-rpg-fichas",
+            storageBucket: "meu-rpg-fichas.firebasestorage.app",
+            messagingSenderId: "244238439870",
+            appId: "1:244238439870:web:974a21e2c76fce6ffad5ef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Criamos uma "pasta" global só para a Iniciativa (independente de jogador)
+        const iniciativaRef = doc(db, "combate", "estado_atual");
+
+        // Lógica da Interface
+        const btnIniciativa = document.getElementById('btn-iniciativa');
+        const painelIniciativa = document.getElementById('painel-iniciativa');
+        const viewMode = document.getElementById('iniciativa-view-mode');
+        const editMode = document.getElementById('iniciativa-edit-mode');
+        const displayIniciativa = document.getElementById('iniciativa-display');
+        const textareaIniciativa = document.getElementById('iniciativa-textarea');
+        const btnEditarIniciativa = document.getElementById('btn-editar-iniciativa');
+        const btnConfirmarIniciativa = document.getElementById('btn-confirmar-iniciativa');
+
+        // Abre/Fecha o Painel
+        btnIniciativa.addEventListener('click', () => {
+            painelIniciativa.classList.toggle('hidden');
+        });
+
+        // Entra no modo edição
+        btnEditarIniciativa.addEventListener('click', () => {
+            const textoAtual = displayIniciativa.innerText;
+            textareaIniciativa.value = textoAtual === "Nenhum combate ativo." ? "" : textoAtual;
+            viewMode.classList.add('hidden');
+            editMode.classList.remove('hidden');
+        });
+
+        // Função para pintar o texto na tela
+        function atualizarDisplay(texto) {
+            displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
+        }
+
+        // SALVAR NO FIREBASE
+        btnConfirmarIniciativa.addEventListener('click', async () => {
+            const novoTexto = textareaIniciativa.value.trim();
+            const btnTextoOriginal = btnConfirmarIniciativa.innerText;
+            
+            // Dá um feedback visual que está enviando pra internet
+            btnConfirmarIniciativa.innerText = "ENVIANDO...";
+
+            try {
+                // Salva na nuvem para todos verem
+                await setDoc(iniciativaRef, { texto: novoTexto });
+                
+                // Volta pro modo visualização
+                editMode.classList.add('hidden');
+                viewMode.classList.remove('hidden');
+            } catch (erro) {
+                console.error("Erro ao salvar iniciativa:", erro);
+                alert("Erro ao sincronizar iniciativa. Verifique a internet.");
+            } finally {
+                btnConfirmarIniciativa.innerText = btnTextoOriginal;
+            }
+        });
+
+        // A MÁGICA: Escuta o Firebase em tempo real (MULTIPLAYER)
+        onSnapshot(iniciativaRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const dados = docSnap.data();
+                atualizarDisplay(dados.texto);
+            } else {
+                // Se o documento nunca foi criado ainda, mostra vazio
+                atualizarDisplay("");
+            }
+        });
+    </script>
 </body>
 </html>

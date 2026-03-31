@@ -1,7 +1,9 @@
+// 1. Importando as ferramentas do Firebase (agora com o onSnapshot)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { iniciarCalculadora, addDigito, limparCalc, apagarUltimo, calcularResultado } from "./calculadora.js";
 
+// 2. Configuração do seu Projeto
 const firebaseConfig = {
   apiKey: "AIzaSyAp9MzVTjccwHoXvZSiVNjK36nbVf41rIM",
   authDomain: "meu-rpg-fichas.firebaseapp.com",
@@ -14,10 +16,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// --- CONTROLE DE ID DO JOGADOR E DO COMBATE ---
 const urlParams = new URLSearchParams(window.location.search);
 let jogadorId = urlParams.get('id') || "jogador1";
 const fichaRef = doc(db, "fichas", jogadorId);
+const iniciativaRef = doc(db, "combate", "estado_atual"); // Caminho da Iniciativa Global
 
+// 3. Mapeamento das Perícias
 const mapaPericias = {
     "Atletismo": "corpo", "Acrobacia": "movimento", "Furtividade": "movimento",
     "Investigacao": "mente", "Natureza": "mente", "Adestramento": "mente", 
@@ -26,6 +31,9 @@ const mapaPericias = {
     "Atuacao": "espirito", "Enganacao": "espirito", "Intimidacao": "espirito", "Persuasao": "espirito"
 };
 
+// ==========================================
+// INVENTÁRIO DINÂMICO
+// ==========================================
 const containerItens = document.getElementById("lista-itens");
 const btnAddItem = document.getElementById("add-item");
 
@@ -80,6 +88,55 @@ function criarTemplateItem(nome = "", qtd = "1", desc = "") {
 
 if(btnAddItem) btnAddItem.addEventListener("click", () => criarTemplateItem());
 
+// ==========================================
+// GALERIA DE IMAGENS
+// ==========================================
+const containerImagens = document.getElementById("lista-imagens");
+const btnAddImagem = document.getElementById("add-imagem");
+
+function criarTemplateImagem(url = "", desc = "") {
+    const div = document.createElement("div");
+    div.className = "card-imagem bg-gray-900 p-4 rounded-xl border border-gray-700 flex flex-col gap-3 relative animate-fade-in shadow-xl";
+
+    div.innerHTML = `
+        <button type="button" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold btn-remover-img shadow-lg z-10 transition-transform hover:scale-110">&times;</button>
+        
+        <div class="w-full h-auto bg-gray-900 rounded-lg border border-gray-700 overflow-hidden relative group flex items-center justify-center p-1 min-h-[150px]">
+            <img src="${url || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo'}" 
+                 class="w-full h-auto max-h-[500px] object-contain block preview-img transition-transform duration-500 group-hover:scale-105 rounded" 
+                 alt="Arte">
+        </div>
+
+        <input type="text" placeholder="Cole o link da imagem aqui..." value="${url}" class="w-full bg-gray-800 text-white text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 campo-img-url mt-2">
+        
+        <textarea placeholder="Descrição da arte..." class="w-full bg-gray-800 text-gray-300 text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 resize-none h-20 campo-img-desc custom-scrollbar">${desc}</textarea>
+    `;
+
+    const inputUrl = div.querySelector(".campo-img-url");
+    const imgPreview = div.querySelector(".preview-img");
+    
+    inputUrl.addEventListener("input", (e) => {
+        imgPreview.src = e.target.value || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo';
+        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+    });
+
+    div.querySelector(".campo-img-desc").addEventListener("input", () => {
+        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+    });
+
+    div.querySelector(".btn-remover-img").addEventListener("click", () => {
+        div.remove();
+        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+    });
+
+    containerImagens.appendChild(div);
+}
+
+if(btnAddImagem) btnAddImagem.addEventListener("click", () => criarTemplateImagem());
+
+// ============================================================
+// CÁLCULOS AUTOMÁTICOS
+// ============================================================
 function atualizarTudo() {
     const calcularPct = (atualId, maxId) => {
         const atual = Number(document.getElementById(atualId)?.value) || 0;
@@ -132,7 +189,6 @@ const resizeObserver = new ResizeObserver(entries => {
     }
 });
 
-// Remove expansões ao mover
 function limparExpansao(secao) {
     if (secao.classList.contains('secao-larga-dir') || secao.classList.contains('secao-larga-esq')) {
         window.alternarTamanho(secao); 
@@ -140,13 +196,38 @@ function limparExpansao(secao) {
 }
 
 // ==========================================
-// FUNÇÕES DE MOVIMENTAÇÃO
+// FUNÇÕES DE MOVIMENTAÇÃO DE SEÇÕES E ABAS
 // ==========================================
+window.mudarPagina = function(aba) {
+    const divPrincipal = document.getElementById("pagina-principal");
+    const divImagens = document.getElementById("pagina-imagens");
+    const tabPrincipal = document.getElementById("tab-principal");
+    const tabImagens = document.getElementById("tab-imagens");
+
+    if (aba === 'principal') {
+        divPrincipal.classList.remove("hidden");
+        divPrincipal.classList.add("block");
+        divImagens.classList.remove("block");
+        divImagens.classList.add("hidden");
+
+        tabPrincipal.className = "px-6 py-3 bg-gray-800 text-white font-bold rounded-t-lg border-t-2 border-red-500 transition-all -mb-[1px] relative z-10";
+        tabImagens.className = "px-6 py-3 bg-gray-900 text-gray-500 font-bold rounded-t-lg border border-gray-700 hover:text-gray-300 hover:bg-gray-800 transition-all border-b-0 -mb-[1px]";
+    } else {
+        divPrincipal.classList.remove("block");
+        divPrincipal.classList.add("hidden");
+        divImagens.classList.remove("hidden");
+        divImagens.classList.add("block");
+
+        tabImagens.className = "px-6 py-3 bg-gray-800 text-white font-bold rounded-t-lg border-t-2 border-blue-500 transition-all -mb-[1px] relative z-10";
+        tabPrincipal.className = "px-6 py-3 bg-gray-900 text-gray-500 font-bold rounded-t-lg border border-gray-700 hover:text-gray-300 hover:bg-gray-800 transition-all border-b-0 -mb-[1px]";
+    }
+};
+
 window.moverSecao = function(botao, direcao) {
     const secao = botao.closest('.secao-arrastavel');
     if (!secao) return;
     
-    limparExpansao(secao); // Recolhe antes de mover por segurança
+    limparExpansao(secao); 
 
     if (direcao === -1) {
         const anterior = secao.previousElementSibling;
@@ -174,7 +255,6 @@ window.moverColuna = function(botao, direcao) {
     
     if (indexAtual === -1) return; 
 
-    // Calcula o novo index e verifica se não bateu na parede
     let novoIndex = indexAtual + direcao;
     if(novoIndex >= 0 && novoIndex < colunas.length) {
         document.getElementById(colunas[novoIndex]).appendChild(secao);
@@ -182,9 +262,7 @@ window.moverColuna = function(botao, direcao) {
     }
 };
 
-// Alterna o tamanho e cria o fantasma na coluna vizinha
 window.alternarTamanho = function(elemento) {
-    // Permite que a função receba tanto o botão quanto a própria div da seção
     const secao = elemento.classList && elemento.classList.contains('secao-arrastavel') 
         ? elemento 
         : elemento.closest('.secao-arrastavel');
@@ -192,20 +270,16 @@ window.alternarTamanho = function(elemento) {
     if (!secao) return;
     const colAtual = secao.parentNode.id;
 
-    // RECOLHER: Se já está expandido
     if (secao.classList.contains('secao-larga-dir') || secao.classList.contains('secao-larga-esq')) {
         secao.classList.remove('secao-larga-dir', 'secao-larga-esq');
         resizeObserver.unobserve(secao);
         
         const spacer = document.getElementById('spacer-' + secao.id);
         if (spacer) spacer.remove();
-    } 
-    // EXPANDIR
-    else {
+    } else {
         let colAlvoId;
         let classeLarga;
 
-        // Regras de qual direção crescer
         if (colAtual === 'coluna-esquerda') {
             classeLarga = 'secao-larga-dir';
             colAlvoId = 'coluna-centro';
@@ -218,18 +292,14 @@ window.alternarTamanho = function(elemento) {
         }
 
         secao.classList.add(classeLarga);
-        resizeObserver.observe(secao); // Fica de olho se a seção crescer depois
+        resizeObserver.observe(secao);
 
-        // Acha a posição da seção atual
         const index = Array.from(secao.parentNode.children).indexOf(secao);
-
-        // Cria o fantasma
         const spacer = document.createElement('div');
         spacer.id = 'spacer-' + secao.id;
         spacer.className = 'spacer-div';
         spacer.style.height = secao.offsetHeight + 'px';
 
-        // Tenta empurrar quem está no mesmo lugar na outra coluna
         const colAlvo = document.getElementById(colAlvoId);
         const nodeAlvo = colAlvo.children[index];
         if (nodeAlvo) {
@@ -241,7 +311,6 @@ window.alternarTamanho = function(elemento) {
     document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
 };
 
-
 // ==========================================
 // INICIALIZA BIBLIOTECA DE ARRASTAR
 // ==========================================
@@ -250,9 +319,7 @@ const configSortable = {
     handle: '.drag-handle',
     animation: 200,
     ghostClass: 'opacity-40',
-    onStart: function (evt) {
-        limparExpansao(evt.item); // Recolhe a seção se o jogador tentar arrastar
-    },
+    onStart: function (evt) { limparExpansao(evt.item); },
     onEnd: () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden")
 };
 
@@ -271,7 +338,7 @@ if (areaInv && window.Sortable) {
 }
 
 // ==========================================
-// CARREGAR DADOS E SALVAR
+// CARREGAR DADOS E SALVAR NA FICHA
 // ==========================================
 async function carregarFicha() {
     try {
@@ -281,7 +348,6 @@ async function carregarFicha() {
             const colunasIds = ["coluna-esquerda", "coluna-centro", "coluna-direita"];
             const secoesParaExpandir = [];
             
-            // Migração segura para quem ainda estava nas 2 colunas
             if (dados.ordemEsquerda && !dados.ordem_coluna_esquerda) {
                 dados.ordem_coluna_esquerda = (dados.ordemEsquerda || []).map(id => ({id, larga: false}));
                 dados.ordem_coluna_direita = (dados.ordemDireita || []).map(id => ({id, larga: false}));
@@ -295,7 +361,6 @@ async function carregarFicha() {
                         const secao = document.getElementById(idSecao);
                         if (secao) {
                             document.getElementById(idCol).appendChild(secao);
-                            // Salva para rodar a função de expansão DEPOIS que o DOM carregar
                             if (item.larga) secoesParaExpandir.push(secao);
                         }
                     });
@@ -303,7 +368,7 @@ async function carregarFicha() {
             });
 
             document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico").forEach(el => {
-                if (!el.classList.contains('campo-item-nome') && !el.classList.contains('campo-item-qtd') && !el.classList.contains('campo-item-desc')) {
+                if (el.id && !el.classList.contains('campo-item-nome') && !el.classList.contains('campo-item-qtd') && !el.classList.contains('campo-item-desc') && !el.classList.contains('campo-img-url') && !el.classList.contains('campo-img-desc')) {
                     if (dados[el.id] !== undefined) {
                         if (el.classList.contains('editor-rico') || el.getAttribute('contenteditable') === 'true') {
                             el.innerHTML = dados[el.id];
@@ -326,12 +391,15 @@ async function carregarFicha() {
                 dados.inventario.forEach(item => criarTemplateItem(item.nome, item.qtd, item.desc));
             }
 
+            if (dados.galeria && Array.isArray(dados.galeria)) {
+                containerImagens.innerHTML = "";
+                dados.galeria.forEach(img => criarTemplateImagem(img.url, img.desc));
+            }
             atualizarTudo();
             
-            // Depois que todo mundo estiver em suas colunas, expande as seções necessárias
             setTimeout(() => {
                 secoesParaExpandir.forEach(secao => window.alternarTamanho(secao));
-            }, 200);
+            }, 300);
 
             console.log("Ficha carregada com sucesso!");
         }
@@ -349,62 +417,131 @@ document.querySelectorAll("input, textarea, .editor-rico, [contenteditable='true
 });
 
 const btnSalvar = document.getElementById("btnSalvar");
-const textoBtnSalvar = document.getElementById("textoBtnSalvar");
-
-btnSalvar.addEventListener("click", async () => {
-    textoBtnSalvar.innerText = "Salvando...";
-    const dadosParaSalvar = {};
-    
-    document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico, [contenteditable='true']").forEach(el => {
-        if (el.id) {
-            dadosParaSalvar[el.id] = (el.classList.contains('editor-rico') || el.getAttribute('contenteditable') === 'true') ? el.innerHTML : el.value;
-        }
-    });
-
-    Object.keys(mapaPericias).forEach(p => {
-        const c1 = document.getElementById(`check${p}`);
-        const c2 = document.getElementById(`checkDuplo${p}`);
-        if (c1) dadosParaSalvar[`check${p}`] = c1.checked;
-        if (c2) dadosParaSalvar[`checkDuplo${p}`] = c2.checked;
-    });
-
-    const itens = [];
-    document.querySelectorAll(".item-container").forEach(el => {
-        itens.push({
-            nome: el.querySelector(".campo-item-nome").value,
-            qtd: el.querySelector(".campo-item-qtd").value,
-            desc: el.querySelector(".campo-item-desc").value
+if(btnSalvar) {
+    btnSalvar.addEventListener("click", async () => {
+        const textoBtnSalvar = document.getElementById("textoBtnSalvar");
+        textoBtnSalvar.innerText = "Salvando...";
+        const dadosParaSalvar = {};
+        
+        document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico, [contenteditable='true']").forEach(el => {
+            if (el.id && !el.classList.contains('campo-item-nome') && !el.classList.contains('campo-item-qtd') && !el.classList.contains('campo-item-desc') && !el.classList.contains('campo-img-url') && !el.classList.contains('campo-img-desc')) {
+                dadosParaSalvar[el.id] = (el.classList.contains('editor-rico') || el.getAttribute('contenteditable') === 'true') ? el.innerHTML : el.value;
+            }
         });
-    });
-    dadosParaSalvar.inventario = itens;
 
-    const colunasIds = ["coluna-esquerda", "coluna-centro", "coluna-direita"];
-    colunasIds.forEach(idCol => {
-        const ordem = [];
-        document.querySelectorAll(`#${idCol} > .secao-arrastavel`).forEach(secao => {
-            ordem.push({
-                id: secao.id,
-                larga: secao.classList.contains('secao-larga-dir') || secao.classList.contains('secao-larga-esq')
+        Object.keys(mapaPericias).forEach(p => {
+            const c1 = document.getElementById(`check${p}`);
+            const c2 = document.getElementById(`checkDuplo${p}`);
+            if (c1) dadosParaSalvar[`check${p}`] = c1.checked;
+            if (c2) dadosParaSalvar[`checkDuplo${p}`] = c2.checked;
+        });
+
+        const itens = [];
+        document.querySelectorAll(".item-container").forEach(el => {
+            itens.push({
+                nome: el.querySelector(".campo-item-nome").value,
+                qtd: el.querySelector(".campo-item-qtd").value,
+                desc: el.querySelector(".campo-item-desc").value
             });
         });
-        dadosParaSalvar[`ordem_${idCol.replace(/-/g, '_')}`] = ordem;
+        dadosParaSalvar.inventario = itens;
+
+        const galeria = [];
+        document.querySelectorAll(".card-imagem").forEach(el => {
+            galeria.push({
+                url: el.querySelector(".campo-img-url").value,
+                desc: el.querySelector(".campo-img-desc").value
+            });
+        });
+        dadosParaSalvar.galeria = galeria;
+
+        const colunasIds = ["coluna-esquerda", "coluna-centro", "coluna-direita"];
+        colunasIds.forEach(idCol => {
+            const ordem = [];
+            document.querySelectorAll(`#${idCol} > .secao-arrastavel`).forEach(secao => {
+                ordem.push({
+                    id: secao.id,
+                    larga: secao.classList.contains('secao-larga-dir') || secao.classList.contains('secao-larga-esq')
+                });
+            });
+            dadosParaSalvar[`ordem_${idCol.replace(/-/g, '_')}`] = ordem;
+        });
+
+        try {
+            await setDoc(fichaRef, dadosParaSalvar);
+            atualizarTudo();
+            textoBtnSalvar.innerText = "Salvo!";
+            document.getElementById("avisoNaoSalvo")?.classList.add("hidden");
+            setTimeout(() => textoBtnSalvar.innerText = "Salvar Ficha", 2000);
+        } catch (erro) {
+            console.error("Erro ao salvar:", erro);
+            textoBtnSalvar.innerText = "Erro!";
+        }
     });
+}
 
-    try {
-        await setDoc(fichaRef, dadosParaSalvar);
-        atualizarTudo();
-        textoBtnSalvar.innerText = "Salvo!";
-        document.getElementById("avisoNaoSalvo")?.classList.add("hidden");
-        setTimeout(() => textoBtnSalvar.innerText = "Salvar Ficha", 2000);
-    } catch (erro) {
-        console.error("Erro ao salvar:", erro);
-        textoBtnSalvar.innerText = "Erro!";
-    }
-});
-
-// Iniciadores Extras
+// Calculadora
 iniciarCalculadora();
 window.addDigito = addDigito;
 window.limparCalc = limparCalc;
 window.apagarUltimo = apagarUltimo;
 window.calcularResultado = calcularResultado;
+
+
+// ==========================================
+// INICIATIVA MULTIPLAYER (FIREBASE)
+// ==========================================
+const btnIniciativa = document.getElementById('btn-iniciativa');
+if (btnIniciativa) {
+    const painelIniciativa = document.getElementById('painel-iniciativa');
+    const viewMode = document.getElementById('iniciativa-view-mode');
+    const editMode = document.getElementById('iniciativa-edit-mode');
+    const displayIniciativa = document.getElementById('iniciativa-display');
+    const textareaIniciativa = document.getElementById('iniciativa-textarea');
+    const btnEditarIniciativa = document.getElementById('btn-editar-iniciativa');
+    const btnConfirmarIniciativa = document.getElementById('btn-confirmar-iniciativa');
+
+    btnIniciativa.addEventListener('click', () => {
+        painelIniciativa.classList.toggle('hidden');
+    });
+
+    btnEditarIniciativa.addEventListener('click', () => {
+        const textoAtual = displayIniciativa.innerText;
+        textareaIniciativa.value = textoAtual === "Nenhum combate ativo." ? "" : textoAtual;
+        viewMode.classList.add('hidden');
+        editMode.classList.remove('hidden');
+    });
+
+    function atualizarDisplay(texto) {
+        if(displayIniciativa) {
+            displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
+        }
+    }
+
+    btnConfirmarIniciativa.addEventListener('click', async () => {
+        const novoTexto = textareaIniciativa.value.trim();
+        const btnTextoOriginal = btnConfirmarIniciativa.innerText;
+        
+        btnConfirmarIniciativa.innerText = "ENVIANDO...";
+
+        try {
+            await setDoc(iniciativaRef, { texto: novoTexto });
+            editMode.classList.add('hidden');
+            viewMode.classList.remove('hidden');
+        } catch (erro) {
+            console.error("Erro ao salvar iniciativa:", erro);
+            alert("Erro ao sincronizar iniciativa. Verifique a internet.");
+        } finally {
+            btnConfirmarIniciativa.innerText = btnTextoOriginal;
+        }
+    });
+
+    // ESCUTA O FIREBASE EM TEMPO REAL
+    onSnapshot(iniciativaRef, (docSnap) => {
+        if (docSnap.exists()) {
+            atualizarDisplay(docSnap.data().texto);
+        } else {
+            atualizarDisplay("");
+        }
+    });
+}
