@@ -1,0 +1,150 @@
+// js/log_global.js
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAp9MzVTjccwHoXvZSiVNjK36nbVf41rIM",
+    authDomain: "meu-rpg-fichas.firebaseapp.com",
+    projectId: "meu-rpg-fichas",
+    storageBucket: "meu-rpg-fichas.firebasestorage.app",
+    messagingSenderId: "244238439870",
+    appId: "1:244238439870:web:974a21e2c76fce6ffad5ef"
+};
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Criar a interface no HTML via JS
+    const container = document.createElement("div");
+    container.className = "fixed bottom-10 left-10 z-[100] flex flex-col items-start gap-2 transition-transform";
+    container.style.willChange = "top, left";
+
+    container.innerHTML = `
+        <div id="modalLogDados" class="hidden bg-gray-900 border-2 border-blue-900 w-80 rounded-xl shadow-2xl overflow-hidden animate-fade-in select-none">
+            <div id="logHeader" class="bg-blue-900/50 p-2 flex justify-between items-center cursor-grab active:cursor-grabbing border-b border-blue-800">
+                <span class="text-[10px] font-black text-blue-200 uppercase tracking-[0.2em] ml-2">Histórico de Dados</span>
+                <button id="fecharLog" class="text-blue-300 hover:text-white px-2 font-bold">&times;</button>
+            </div>
+            <div id="lista-log-dados" class="flex flex-col gap-2 p-4 max-h-80 overflow-y-auto custom-scrollbar bg-gray-950/50">
+                <div class="text-center text-gray-600 text-[10px] py-4 uppercase">Aguardando rolagens...</div>
+            </div>
+        </div>
+
+        <button id="btnAbrirLog" class="bg-blue-700 hover:bg-blue-600 text-white p-4 rounded-full shadow-2xl border-2 border-blue-900 cursor-grab active:cursor-grabbing relative z-10 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span id="notificacao-log" class="hidden absolute -top-1 -right-1 bg-red-500 w-4 h-4 rounded-full border-2 border-gray-900 animate-pulse pointer-events-none"></span>
+        </button>
+    `;
+    document.body.appendChild(container);
+
+    const modal = document.getElementById("modalLogDados");
+    const btnAbrir = document.getElementById("btnAbrirLog");
+    const btnFechar = document.getElementById("fecharLog");
+    const listaLogs = document.getElementById("lista-log-dados");
+    const notificacao = document.getElementById("notificacao-log");
+    const header = document.getElementById("logHeader");
+
+    // ==========================================
+    // SISTEMA AVANÇADO DE ARRASTAR (DRAG & DROP)
+    // ==========================================
+    let isDragging = false;
+    let hasDragged = false;
+    let offset = { x: 0, y: 0 };
+
+    const iniciarArrasto = (e) => {
+        isDragging = true;
+        hasDragged = false;
+        
+        const rect = container.getBoundingClientRect();
+        offset.x = e.clientX - rect.left;
+        offset.y = e.clientY - rect.top;
+        
+        document.body.style.userSelect = "none";
+    };
+
+    header.addEventListener("mousedown", iniciarArrasto);
+    btnAbrir.addEventListener("mousedown", iniciarArrasto);
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        
+        hasDragged = true;
+        container.style.bottom = "auto"; 
+        container.style.right = "auto";
+        container.style.left = (e.clientX - offset.x) + "px";
+        container.style.top = (e.clientY - offset.y) + "px";
+    });
+
+    document.addEventListener("mouseup", () => {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.userSelect = "";
+            setTimeout(() => hasDragged = false, 50);
+        }
+    });
+
+    // ==========================================
+    // LÓGICA DE ABRIR E FECHAR A JANELA
+    // ==========================================
+    btnAbrir.addEventListener("click", (e) => {
+        if (hasDragged) {
+            e.preventDefault();
+            return;
+        }
+
+        modal.classList.toggle("hidden");
+        notificacao.classList.add("hidden");
+        
+        if (!modal.classList.contains("hidden")) {
+            setTimeout(() => listaLogs.scrollTop = listaLogs.scrollHeight, 100);
+        }
+    });
+
+    btnFechar.addEventListener("click", () => modal.classList.add("hidden"));
+
+    // ==========================================
+    // ESCUTAR FIREBASE (LOG GLOBAL COM PROTEÇÃO DE PRIMEIRA CARGA)
+    // ==========================================
+    const q = query(collection(db, "logs_dados"), orderBy("timestamp", "asc"));
+    
+    // Variável mágica que diz se o site acabou de abrir
+    let primeiraCarga = true;
+    
+    onSnapshot(q, (snap) => {
+        if (snap.empty) return;
+
+        let html = "";
+        snap.forEach((doc) => {
+            const d = doc.data();
+            const corAutor = d.autor === "Satsu" ? "text-red-500" : d.autor === "Yugen" ? "text-blue-500" : d.autor === "Ace" ? "text-green-500" : "text-purple-500";
+            
+            html += `
+                <div class="bg-gray-900/80 p-2 rounded border border-gray-800 shadow-sm animate-fade-in border-l-2 border-l-blue-600">
+                    <div class="text-[9px] font-black ${corAutor} uppercase mb-1 flex justify-between">
+                        <span>${d.autor}</span>
+                        <span class="text-gray-600 font-mono">${d.formula}</span>
+                    </div>
+                    <div class="text-[11px] text-gray-300 leading-tight">
+                        <span class="text-gray-500">${d.detalhes}</span> ➔ <b class="text-white text-sm">${d.total}</b>
+                    </div>
+                </div>
+            `;
+        });
+        listaLogs.innerHTML = html;
+
+        // Auto-scroll para o novo log que entrou embaixo
+        listaLogs.scrollTop = listaLogs.scrollHeight;
+
+        // Verifica se deve acender a notificação
+        if (primeiraCarga) {
+            // Se for a primeira vez que lê os dados do banco, não faz nada
+            primeiraCarga = false; 
+        } else {
+            // Se não for a primeira carga e a janela estiver fechada, significa que alguém jogou um dado novo!
+            if (modal.classList.contains("hidden")) {
+                notificacao.classList.remove("hidden");
+            }
+        }
+    });
+});
