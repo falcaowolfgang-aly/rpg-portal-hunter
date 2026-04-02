@@ -17,7 +17,7 @@ const db = getFirestore(app);
 const urlParams = new URLSearchParams(window.location.search);
 let jogadorId = urlParams.get('id') || "jogador1";
 const fichaRef = doc(db, "fichas", jogadorId);
-const iniciativaRef = doc(db, "combate", "estado_atual"); // COLOQUE ESTA LINHA AQUI!
+const iniciativaRef = doc(db, "combate", "estado_atual");
 
 const mapaPericias = {
     "Atletismo": "corpo", "Acrobacia": "movimento", "Furtividade": "movimento",
@@ -28,7 +28,12 @@ const mapaPericias = {
 };
 
 // ==========================================
-// INVENTÁRIO (LÓGICA MANTIDA INTÁCTA)
+// AVISO DE NÃO SALVO
+// ==========================================
+const alertarSalvar = () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+
+// ==========================================
+// INVENTÁRIO
 // ==========================================
 const containerItens = document.getElementById("lista-itens");
 const btnAddItem = document.getElementById("add-item");
@@ -68,20 +73,17 @@ function criarTemplateItem(nome = "", qtd = "1", desc = "") {
 
     itemDiv.querySelector(".btn-remover-item").addEventListener("click", () => {
         itemDiv.remove();
-        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+        alertarSalvar();
     });
 
-    itemDiv.querySelectorAll("input, textarea").forEach(input => {
-        input.addEventListener("input", () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden"));
-    });
-
+    itemDiv.querySelectorAll("input, textarea").forEach(input => input.addEventListener("input", alertarSalvar));
     containerItens.appendChild(itemDiv);
 }
 
 if(btnAddItem) btnAddItem.addEventListener("click", () => criarTemplateItem());
 
 // ==========================================
-// GALERIA (MANTIDA)
+// GALERIA
 // ==========================================
 const containerImagens = document.getElementById("lista-imagens");
 const btnAddImagem = document.getElementById("add-imagem");
@@ -104,22 +106,194 @@ function criarTemplateImagem(url = "", desc = "") {
     
     inputUrl.addEventListener("input", (e) => {
         imgPreview.src = e.target.value || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo';
-        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+        alertarSalvar();
     });
 
-    div.querySelector(".campo-img-desc").addEventListener("input", () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden"));
+    div.querySelector(".campo-img-desc").addEventListener("input", alertarSalvar);
     div.querySelector(".btn-remover-img").addEventListener("click", () => {
         div.remove();
-        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+        alertarSalvar();
     });
-
     containerImagens.appendChild(div);
 }
 
 if(btnAddImagem) btnAddImagem.addEventListener("click", () => criarTemplateImagem());
 
+// ==========================================
+// MURAL DE ANOTAÇÕES (HD VIRTUAL - MINI NOTION)
+// ==========================================
+const quadroAnotacoes = document.getElementById("quadro-anotacoes");
+const migalhasPao = document.getElementById("migalhas-pao");
+
+window.sistemaNotas = []; 
+window.trilhaAtual = []; 
+
+const gerarIdNota = () => 'nota_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+window.renderizarMigalhas = function() {
+    if (!migalhasPao) return;
+    migalhasPao.innerHTML = "";
+    window.trilhaAtual.forEach((passo, index) => {
+        const btn = document.createElement("button");
+        btn.className = "hover:text-white transition-colors truncate max-w-[150px] flex items-center gap-1";
+        btn.innerHTML = passo.nome;
+        btn.onclick = () => {
+            window.trilhaAtual = window.trilhaAtual.slice(0, index + 1);
+            window.renderizarQuadroAtual();
+        };
+        migalhasPao.appendChild(btn);
+
+        if (index < window.trilhaAtual.length - 1) {
+            const sep = document.createElement("span");
+            sep.className = "text-gray-600";
+            sep.innerText = "/";
+            migalhasPao.appendChild(sep);
+        }
+    });
+};
+
+window.renderizarQuadroAtual = function() {
+    if(!quadroAnotacoes) return;
+    quadroAnotacoes.innerHTML = "";
+    window.renderizarMigalhas();
+
+    const arrayAtual = window.trilhaAtual[window.trilhaAtual.length - 1].ref;
+
+    if (arrayAtual.length === 0) {
+        quadroAnotacoes.innerHTML = `<div class="col-span-full text-center text-gray-600 py-10 font-bold uppercase tracking-widest">Pasta Vazia</div>`;
+        return;
+    }
+
+    arrayAtual.forEach(notaObj => {
+        quadroAnotacoes.appendChild(criarElementoNota(notaObj, arrayAtual));
+    });
+};
+
+function criarElementoNota(notaObj, arrayPai) {
+    const div = document.createElement("div");
+    div.dataset.id = notaObj.id;
+    // IMPORTANTE: A classe "group" foi adicionada para os botões aparecerem só quando passar o mouse
+    div.className = "card-nota group bg-gray-900 p-0 rounded-lg border border-gray-700 shadow-xl relative animate-fade-in flex flex-col overflow-hidden focus-within:border-purple-500 transition-colors w-full";
+
+    const btnRemover = `<button type="button" class="text-gray-500 hover:text-red-500 font-bold px-1 transition-colors btn-remover" title="Apagar">&times;</button>`;
+
+    if (notaObj.tipo === "simples") {
+        // TIPO 1: POST-IT (Sem título, botões flutuantes que aparecem no hover)
+        div.innerHTML = `
+            <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div class="drag-nota cursor-move text-gray-400 hover:text-white p-1.5 bg-gray-800 rounded shadow border border-gray-700"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
+                <button type="button" class="text-gray-400 hover:text-red-500 font-bold px-2 bg-gray-800 rounded shadow border border-gray-700 transition-colors btn-remover" title="Apagar">&times;</button>
+            </div>
+            <textarea placeholder="Escreva suas anotações aqui..." class="w-full bg-transparent text-gray-300 text-sm p-4 pt-5 outline-none resize-y min-h-[140px] custom-scrollbar flex-1">${notaObj.conteudo || ''}</textarea>
+        `;
+        div.querySelector("textarea").oninput = (e) => { notaObj.conteudo = e.target.value; alertarSalvar(); };
+
+    } else if (notaObj.tipo === "pasta") {
+        // TIPO 3: PASTA MINIMALISTA (Só título, duplo clique para abrir)
+        div.classList.replace("focus-within:border-purple-500", "focus-within:border-yellow-500");
+        if(!notaObj.itens) notaObj.itens = [];
+        
+        div.innerHTML = `
+            <div class="bg-yellow-900/20 p-2 flex justify-between items-center drag-nota cursor-pointer hover:bg-yellow-900/40 transition-colors" title="Duplo clique para abrir">
+                <span class="text-yellow-600 mr-2 pointer-events-none">📁</span>
+                <input type="text" placeholder="Nome da Pasta..." value="${notaObj.titulo || ''}" class="bg-transparent text-yellow-500 font-bold text-sm outline-none w-full mr-2 cursor-text" title="Duplo clique para abrir">
+                ${btnRemover}
+            </div>
+        `;
+        div.querySelector("input").oninput = (e) => { notaObj.titulo = e.target.value; alertarSalvar(); };
+        
+        // A Mágica do Duplo Clique
+        const abrirPasta = () => {
+            window.trilhaAtual.push({ nome: `📁 ${notaObj.titulo || "Pasta"}`, ref: notaObj.itens });
+            window.renderizarQuadroAtual();
+        };
+        
+        // O duplo clique na barrinha inteira (ou no input) abre a pasta
+        div.querySelector(".drag-nota").ondblclick = abrirPasta;
+
+    } else if (notaObj.tipo === "accordion") {
+        // TIPO 2: ACORDEÃO
+        div.classList.replace("focus-within:border-purple-500", "focus-within:border-blue-500");
+        if(!notaObj.itens) notaObj.itens = [];
+
+        div.innerHTML = `
+            <div class="bg-blue-900/20 p-2 flex justify-between items-center border-b border-gray-700 drag-nota cursor-move">
+                <button type="button" class="text-blue-400 mr-2 hover:text-white transition-transform transform btn-toggle">▼</button>
+                <input type="text" placeholder="Título do Acordeão..." value="${notaObj.titulo || ''}" class="bg-transparent text-blue-400 font-bold text-sm outline-none w-full mr-2">
+                ${btnRemover}
+            </div>
+            <div class="corpo-accordion flex flex-col hidden">
+                <div class="p-2 flex flex-col gap-3 container-itens-ac min-h-[40px] bg-gray-950/50"></div>
+                <div class="p-2 border-t border-gray-800 bg-gray-900/50 flex justify-center gap-2">
+                    <button type="button" class="text-gray-400 hover:text-purple-400 text-[10px] font-bold uppercase bg-gray-800 px-3 py-1 rounded border border-gray-700 btn-add-txt">+ Nota</button>
+                    <button type="button" class="text-gray-400 hover:text-yellow-400 text-[10px] font-bold uppercase bg-gray-800 px-3 py-1 rounded border border-gray-700 btn-add-pst">+ Pasta</button>
+                </div>
+            </div>
+        `;
+        
+        const corpo = div.querySelector(".corpo-accordion");
+        const btnToggle = div.querySelector(".btn-toggle");
+        const containerItens = div.querySelector(".container-itens-ac");
+
+        div.querySelector("input").oninput = (e) => { notaObj.titulo = e.target.value; alertarSalvar(); };
+        btnToggle.onclick = () => {
+            corpo.classList.toggle("hidden");
+            btnToggle.style.transform = corpo.classList.contains("hidden") ? "rotate(-90deg)" : "rotate(0deg)";
+        };
+
+        const renderizarFilhosAc = () => {
+            containerItens.innerHTML = "";
+            notaObj.itens.forEach(subObj => containerItens.appendChild(criarElementoNota(subObj, notaObj.itens)));
+        };
+        renderizarFilhosAc();
+
+        if (window.Sortable) {
+            new Sortable(containerItens, {
+                handle: '.drag-nota', animation: 150, ghostClass: 'opacity-40',
+                onEnd: () => { atualizarOrdemArray(containerItens, notaObj.itens); alertarSalvar(); }
+            });
+        }
+
+        div.querySelector(".btn-add-txt").onclick = () => { notaObj.itens.push({ id: gerarIdNota(), tipo: 'simples', conteudo: '' }); renderizarFilhosAc(); alertarSalvar(); };
+        div.querySelector(".btn-add-pst").onclick = () => { notaObj.itens.push({ id: gerarIdNota(), tipo: 'pasta', titulo: '', itens: [] }); renderizarFilhosAc(); alertarSalvar(); };
+    }
+
+    div.querySelector(".btn-remover").onclick = () => {
+        const index = arrayPai.findIndex(n => n.id === notaObj.id);
+        if (index > -1) arrayPai.splice(index, 1);
+        window.renderizarQuadroAtual();
+        alertarSalvar();
+    };
+
+    return div;
+}
+
+function atualizarOrdemArray(containerDOM, arrayReferencia) {
+    const novaOrdem = [];
+    containerDOM.querySelectorAll(':scope > div.card-nota').forEach(el => {
+        const obj = arrayReferencia.find(item => item.id === el.dataset.id);
+        if (obj) novaOrdem.push(obj);
+    });
+    arrayReferencia.length = 0;
+    novaOrdem.forEach(o => arrayReferencia.push(o));
+}
+
+const criarNaPasta = (tipo) => {
+    const arrayAtual = window.trilhaAtual[window.trilhaAtual.length - 1].ref;
+    const novaNota = { id: gerarIdNota(), tipo: tipo };
+    if (tipo === 'simples') novaNota.conteudo = '';
+    if (tipo === 'pasta' || tipo === 'accordion') { novaNota.titulo = ''; novaNota.itens = []; }
+    arrayAtual.push(novaNota);
+    window.renderizarQuadroAtual();
+    alertarSalvar();
+};
+
+document.getElementById("btn-add-simples")?.addEventListener("click", () => criarNaPasta('simples'));
+document.getElementById("btn-add-accordion")?.addEventListener("click", () => criarNaPasta('accordion'));
+document.getElementById("btn-add-pasta")?.addEventListener("click", () => criarNaPasta('pasta'));
+
 // ============================================================
-// CÁLCULOS (MANTIDA)
+// CÁLCULOS
 // ============================================================
 function atualizarTudo() {
     const calcularPct = (atualId, maxId) => {
@@ -161,96 +335,99 @@ function atualizarTudo() {
 }
 
 // ==========================================
-// ABAS (MANTIDA)
+// ABAS INTELIGENTES
 // ==========================================
-window.mudarPagina = function(aba) {
-    const divPrincipal = document.getElementById("pagina-principal");
-    const divImagens = document.getElementById("pagina-imagens");
-    const tabPrincipal = document.getElementById("tab-principal");
-    const tabImagens = document.getElementById("tab-imagens");
-
-    if (aba === 'principal') {
-        divPrincipal.classList.remove("hidden");
-        divPrincipal.classList.add("block");
-        divImagens.classList.remove("block");
-        divImagens.classList.add("hidden");
-        tabPrincipal.className = "px-6 py-3 bg-gray-800 text-white font-bold rounded-t-lg border-t-2 border-red-500 transition-all -mb-[1px] relative z-10";
-        tabImagens.className = "px-6 py-3 bg-gray-900 text-gray-500 font-bold rounded-t-lg border border-gray-700 hover:text-gray-300 hover:bg-gray-800 transition-all border-b-0 -mb-[1px]";
-    } else {
-        divPrincipal.classList.remove("block");
-        divPrincipal.classList.add("hidden");
-        divImagens.classList.remove("hidden");
-        divImagens.classList.add("block");
-        tabImagens.className = "px-6 py-3 bg-gray-800 text-white font-bold rounded-t-lg border-t-2 border-blue-500 transition-all -mb-[1px] relative z-10";
-        tabPrincipal.className = "px-6 py-3 bg-gray-900 text-gray-500 font-bold rounded-t-lg border border-gray-700 hover:text-gray-300 hover:bg-gray-800 transition-all border-b-0 -mb-[1px]";
-    }
+window.mudarPagina = function(abaDesejada) {
+    const paginas = ['principal', 'imagens', 'anotacoes'];
+    
+    paginas.forEach(aba => {
+        const div = document.getElementById(`pagina-${aba}`);
+        const btn = document.getElementById(`tab-${aba}`);
+        
+        if (aba === abaDesejada) {
+            div.classList.remove("hidden");
+            div.classList.add("block");
+            let corBorda = aba === 'principal' ? 'border-red-500' : aba === 'imagens' ? 'border-blue-500' : 'border-purple-500';
+            btn.className = `aba-btn px-6 py-3 bg-gray-800 text-white font-bold rounded-t-lg border-t-2 ${corBorda} transition-all -mb-[1px] relative z-10 whitespace-nowrap`;
+        } else {
+            div.classList.remove("block");
+            div.classList.add("hidden");
+            btn.className = "aba-btn px-6 py-3 bg-gray-900 text-gray-500 font-bold rounded-t-lg border border-gray-700 hover:text-gray-300 hover:bg-gray-800 transition-all border-b-0 -mb-[1px] whitespace-nowrap";
+        }
+    });
 };
 
 // ==========================================
-// NOVO SISTEMA: SWITCH DE TAMANHO (LIGA/DESLIGA)
+// SWITCH DE TAMANHO (GRID DENSE)
 // ==========================================
 window.toggleTamanho = function(botao, eixo) {
     const secao = botao.closest('.secao-arrastavel');
     if (!secao) return;
 
-    // Descobre o que está ligado agora
     const isLargo = secao.classList.contains('bloco-2x1');
     const isAlto = secao.classList.contains('bloco-1x2');
-
-    // Botões da seção atual
     const btnLargo = secao.querySelector('.btn-largo');
     const btnAlto = secao.querySelector('.btn-alto');
 
-    // Reset geral da caixa (limpa as classes de tamanho)
     secao.classList.remove('bloco-1x1', 'bloco-2x1', 'bloco-1x2');
 
     if (eixo === 'horizontal') {
         if (isLargo) {
-            // Se já estava largo, volta pro normal (1x1)
             secao.classList.add('bloco-1x1');
-            btnLargo.classList.remove('text-blue-400', 'bg-gray-800'); // Desliga a luz do botão
+            btnLargo.classList.remove('text-blue-400', 'bg-gray-800');
         } else {
-            // Estica horizontal
             secao.classList.add('bloco-2x1');
-            btnLargo.classList.add('text-blue-400', 'bg-gray-800'); // Acende o botão
-            btnAlto.classList.remove('text-blue-400', 'bg-gray-800'); // Apaga o outro
+            btnLargo.classList.add('text-blue-400', 'bg-gray-800');
+            btnAlto.classList.remove('text-blue-400', 'bg-gray-800');
         }
     } else if (eixo === 'vertical') {
         if (isAlto) {
-            // Se já estava alto, volta pro normal (1x1)
             secao.classList.add('bloco-1x1');
             btnAlto.classList.remove('text-blue-400', 'bg-gray-800');
         } else {
-            // Estica vertical
             secao.classList.add('bloco-1x2');
             btnAlto.classList.add('text-blue-400', 'bg-gray-800');
             btnLargo.classList.remove('text-blue-400', 'bg-gray-800');
         }
     }
-
-    document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+    alertarSalvar();
 };
 
 // ==========================================
-// ARRASTAR E SOLTAR (SORTABLE GRID ÚNICO)
+// ARRASTAR E SOLTAR (SORTABLEJS GERAL)
 // ==========================================
-const gridFichas = document.getElementById("grid-fichas");
-if (gridFichas && window.Sortable) {
-    new Sortable(gridFichas, {
-        animation: 300,
-        handle: '.drag-handle',
-        ghostClass: 'opacity-40',
-        onEnd: () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden")
-    });
-}
+if (window.Sortable) {
+    const gridFichas = document.getElementById("grid-fichas");
+    if (gridFichas) {
+        new Sortable(gridFichas, {
+            animation: 300,
+            handle: '.drag-handle',
+            ghostClass: 'opacity-40',
+            onEnd: alertarSalvar
+        });
+    }
 
-const areaInv = document.getElementById("lista-itens");
-if (areaInv && window.Sortable) {
-    new Sortable(areaInv, {
-        handle: '.drag-item',
-        animation: 150,
-        onEnd: () => document.getElementById("avisoNaoSalvo")?.classList.remove("hidden")
-    });
+    const areaInv = document.getElementById("lista-itens");
+    if (areaInv) {
+        new Sortable(areaInv, {
+            handle: '.drag-item',
+            animation: 150,
+            onEnd: alertarSalvar
+        });
+    }
+
+    if (quadroAnotacoes) {
+        new Sortable(quadroAnotacoes, {
+            handle: '.drag-nota',
+            animation: 200,
+            ghostClass: 'opacity-40',
+            onEnd: () => {
+                const arrayAtual = window.trilhaAtual[window.trilhaAtual.length - 1].ref;
+                atualizarOrdemArray(quadroAnotacoes, arrayAtual);
+                alertarSalvar();
+            }
+        });
+    }
 }
 
 // ==========================================
@@ -262,41 +439,30 @@ async function carregarFicha() {
         if (docSnap.exists()) {
             const dados = docSnap.data();
             
-            // LÓGICA DO GRID UNIFICADO
+            // 1. CARREGA O GRID
             const gridContainer = document.getElementById("grid-fichas");
-            
             if (dados.ordem_grid && Array.isArray(dados.ordem_grid)) {
-    // Lê o array salvo e reordena os blocos reais na tela
-    dados.ordem_grid.forEach(item => {
-        const secao = document.getElementById(item.id);
-        
-        if (secao) {
-            gridContainer.appendChild(secao); // Joga pro fim da fila, criando a ordem
-            
-            // Restaura o tamanho (1x1, 2x1, 1x2)
-            secao.classList.remove('bloco-1x1', 'bloco-2x1', 'bloco-1x2');
-            secao.classList.add(item.tamanho || 'bloco-1x1');
+                dados.ordem_grid.forEach(item => {
+                    const secao = document.getElementById(item.id);
+                    if (secao) {
+                        gridContainer.appendChild(secao);
+                        secao.classList.remove('bloco-1x1', 'bloco-2x1', 'bloco-1x2');
+                        secao.classList.add(item.tamanho || 'bloco-1x1');
 
-            // Acende o botão correto ao carregar a página
-            const btnLargo = secao.querySelector('.btn-largo');
-            const btnAlto = secao.querySelector('.btn-alto');
-            
-            if (btnLargo && btnAlto) {
-                btnLargo.classList.remove('text-blue-400', 'bg-gray-800');
-                btnAlto.classList.remove('text-blue-400', 'bg-gray-800');
-                
-                if (item.tamanho === 'bloco-2x1') btnLargo.classList.add('text-blue-400', 'bg-gray-800');
-                if (item.tamanho === 'bloco-1x2') btnAlto.classList.add('text-blue-400', 'bg-gray-800');
-            }
-        } // <--- FALTAVA ESSA CHAVE AQUI PARA FECHAR O "if (secao)"!
-    });
-} else {
-                // MIGRACÃO: Se a ficha do jogador é velha (tinha 3 colunas),
-                // Ele ignora a ordem antiga e usa a padrão do HTML atual (1x1 em tudo).
-                // Daí o jogador ajeita a tela do zero e salva.
-            }
+                        const btnLargo = secao.querySelector('.btn-largo');
+                        const btnAlto = secao.querySelector('.btn-alto');
+                        
+                        if (btnLargo && btnAlto) {
+                            btnLargo.classList.remove('text-blue-400', 'bg-gray-800');
+                            btnAlto.classList.remove('text-blue-400', 'bg-gray-800');
+                            if (item.tamanho === 'bloco-2x1') btnLargo.classList.add('text-blue-400', 'bg-gray-800');
+                            if (item.tamanho === 'bloco-1x2') btnAlto.classList.add('text-blue-400', 'bg-gray-800');
+                        }
+                    } 
+                });
+            } 
 
-            // Preenche os Inputs
+            // 2. CARREGA INPUTS E TEXTOS
             document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico").forEach(el => {
                 if (el.id && !el.classList.contains('campo-item-nome') && !el.classList.contains('campo-item-qtd') && !el.classList.contains('campo-item-desc') && !el.classList.contains('campo-img-url') && !el.classList.contains('campo-img-desc')) {
                     if (dados[el.id] !== undefined) {
@@ -309,7 +475,7 @@ async function carregarFicha() {
                 }
             });
 
-            // Preenche os Checks
+            // 3. CARREGA CHECKS (PERÍCIAS)
             Object.keys(mapaPericias).forEach(p => {
                 const c1 = document.getElementById(`check${p}`);
                 const c2 = document.getElementById(`checkDuplo${p}`);
@@ -317,20 +483,44 @@ async function carregarFicha() {
                 if (c2 && dados[`checkDuplo${p}`] !== undefined) c2.checked = dados[`checkDuplo${p}`];
             });
 
-            // Recria Inventario
+            // 4. CARREGA INVENTÁRIO
             if (dados.inventario && Array.isArray(dados.inventario)) {
                 containerItens.innerHTML = "";
                 dados.inventario.forEach(item => criarTemplateItem(item.nome, item.qtd, item.desc));
             }
 
-            // Recria Galeria
+            // 5. CARREGA GALERIA
             if (dados.galeria && Array.isArray(dados.galeria)) {
                 containerImagens.innerHTML = "";
                 dados.galeria.forEach(img => criarTemplateImagem(img.url, img.desc));
             }
-            atualizarTudo();
 
-            console.log("Ficha carregada com sucesso no novo Grid!");
+            // 6. CARREGA ANOTAÇÕES (SISTEMA DE ARQUIVOS)
+            const sanitizarNotas = (arr) => {
+                arr.forEach(n => {
+                    if (!n.id) n.id = 'nota_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    // Migração de código velho para o novo se necessário
+                    if (n.tipo === 'pasta' && n.paginas) {
+                        n.itens = n.paginas.map(txt => ({ id: 'nota_'+Math.random().toString(36).substr(2, 9), tipo: 'simples', titulo: '', conteudo: txt }));
+                        delete n.paginas;
+                    }
+                    if (!n.itens && (n.tipo === 'pasta' || n.tipo === 'accordion')) n.itens = [];
+                    if (n.itens) sanitizarNotas(n.itens);
+                });
+            };
+
+            if (dados.anotacoes && Array.isArray(dados.anotacoes)) {
+                sanitizarNotas(dados.anotacoes);
+                window.sistemaNotas = dados.anotacoes;
+            } else {
+                window.sistemaNotas = [];
+            }
+            
+            // Inicia o caminho na Raiz e manda desenhar a tela
+            window.trilhaAtual = [{ nome: '🏠 Início', ref: window.sistemaNotas }];
+            window.renderizarQuadroAtual();
+
+            atualizarTudo();
         }
     } catch (erro) {
         console.error("Erro ao carregar a ficha:", erro);
@@ -338,14 +528,15 @@ async function carregarFicha() {
 }
 carregarFicha();
 
-// Escuta tudo que o jogador digita para acender o aviso "Nao Salvo"
+// Escuta geral para ativar o botão vermelho de salvar
 document.querySelectorAll("input, textarea, .editor-rico, [contenteditable='true']").forEach(elemento => {
     elemento.addEventListener("input", () => {
         atualizarTudo();
-        document.getElementById("avisoNaoSalvo")?.classList.remove("hidden");
+        alertarSalvar();
     });
 });
 
+// FUNÇÃO DE SALVAR TUDO NA NUVEM
 const btnSalvar = document.getElementById("btnSalvar");
 if(btnSalvar) {
     btnSalvar.addEventListener("click", async () => {
@@ -353,14 +544,12 @@ if(btnSalvar) {
         textoBtnSalvar.innerText = "Salvando...";
         const dadosParaSalvar = {};
         
-        // Pega Inputs e Textos
         document.querySelectorAll("input[type='text'], input[type='number'], textarea, .editor-rico, [contenteditable='true']").forEach(el => {
             if (el.id && !el.classList.contains('campo-item-nome') && !el.classList.contains('campo-item-qtd') && !el.classList.contains('campo-item-desc') && !el.classList.contains('campo-img-url') && !el.classList.contains('campo-img-desc')) {
                 dadosParaSalvar[el.id] = (el.classList.contains('editor-rico') || el.getAttribute('contenteditable') === 'true') ? el.innerHTML : el.value;
             }
         });
 
-        // Pega Checks
         Object.keys(mapaPericias).forEach(p => {
             const c1 = document.getElementById(`check${p}`);
             const c2 = document.getElementById(`checkDuplo${p}`);
@@ -368,7 +557,6 @@ if(btnSalvar) {
             if (c2) dadosParaSalvar[`checkDuplo${p}`] = c2.checked;
         });
 
-        // Pega Inventário e Galeria
         const itens = [];
         document.querySelectorAll(".item-container").forEach(el => itens.push({nome: el.querySelector(".campo-item-nome").value, qtd: el.querySelector(".campo-item-qtd").value, desc: el.querySelector(".campo-item-desc").value}));
         dadosParaSalvar.inventario = itens;
@@ -377,17 +565,15 @@ if(btnSalvar) {
         document.querySelectorAll(".card-imagem").forEach(el => galeria.push({url: el.querySelector(".campo-img-url").value, desc: el.querySelector(".campo-img-desc").value}));
         dadosParaSalvar.galeria = galeria;
 
-        // Pega a Ordem e o Tamanho do GRID
+        // SALVA AS ANOTAÇÕES: É só copiar o "HD Virtual" inteiro pra nuvem, numa linha só!
+        dadosParaSalvar.anotacoes = window.sistemaNotas;
+
         const ordemGrid = [];
         document.querySelectorAll("#grid-fichas > .secao-arrastavel").forEach(secao => {
             let tamanho = 'bloco-1x1';
             if (secao.classList.contains('bloco-2x1')) tamanho = 'bloco-2x1';
             if (secao.classList.contains('bloco-1x2')) tamanho = 'bloco-1x2';
-            
-            ordemGrid.push({
-                id: secao.id,
-                tamanho: tamanho
-            });
+            ordemGrid.push({ id: secao.id, tamanho: tamanho });
         });
         dadosParaSalvar.ordem_grid = ordemGrid;
 
@@ -404,7 +590,7 @@ if(btnSalvar) {
     });
 }
 
-// Inicia Calculadora
+// Inicia Calculadora (Vem do arquivo externa)
 iniciarCalculadora();
 window.addDigito = addDigito;
 window.limparCalc = limparCalc;
@@ -412,11 +598,10 @@ window.apagarUltimo = apagarUltimo;
 window.calcularResultado = calcularResultado;
 
 // ==========================================
-// INICIATIVA MULTIPLAYER (FIREBASE)
+// INICIATIVA MULTIPLAYER
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     const btnIniciativa = document.getElementById('btn-iniciativa');
-    
     if (btnIniciativa) {
         const painelIniciativa = document.getElementById('painel-iniciativa');
         const viewMode = document.getElementById('iniciativa-view-mode');
@@ -426,12 +611,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnEditarIniciativa = document.getElementById('btn-editar-iniciativa');
         const btnConfirmarIniciativa = document.getElementById('btn-confirmar-iniciativa');
 
-        // Abrir/Fechar painel
-        btnIniciativa.addEventListener('click', () => {
-            painelIniciativa.classList.toggle('hidden');
-        });
+        btnIniciativa.addEventListener('click', () => painelIniciativa.classList.toggle('hidden'));
 
-        // Modo de Edição
         btnEditarIniciativa.addEventListener('click', () => {
             const textoAtual = displayIniciativa.innerText;
             textareaIniciativa.value = textoAtual === "Nenhum combate ativo." ? "" : textoAtual;
@@ -440,20 +621,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         function atualizarDisplay(texto) {
-            if(displayIniciativa) {
-                displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
-            }
+            if(displayIniciativa) displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
         }
 
-        // Salvar na Nuvem
         btnConfirmarIniciativa.addEventListener('click', async () => {
             const novoTexto = textareaIniciativa.value.trim();
             const btnTextoOriginal = btnConfirmarIniciativa.innerText;
-            
             btnConfirmarIniciativa.innerText = "ENVIANDO...";
-
             try {
-                // Aqui usamos a iniciativaRef que deve estar declarada no topo do arquivo!
                 await setDoc(iniciativaRef, { texto: novoTexto });
                 editMode.classList.add('hidden');
                 viewMode.classList.remove('hidden');
@@ -465,62 +640,49 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // ESCUTA O FIREBASE EM TEMPO REAL
         if (typeof iniciativaRef !== 'undefined') {
             onSnapshot(iniciativaRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    atualizarDisplay(docSnap.data().texto);
-                } else {
-                    atualizarDisplay("");
-                }
+                if (docSnap.exists()) atualizarDisplay(docSnap.data().texto);
+                else atualizarDisplay("");
             });
         }
     }
 });
 
 // ==========================================
-// MELHORIAS DE UX (TEXTO E FORMATAÇÃO)
+// MELHORIAS DE UX (Texto, Negrito, Italico)
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. MATA AS LINHAS VERMELHAS (Desativa o spellcheck globalmente)
     document.querySelectorAll('input[type="text"], textarea, [contenteditable="true"]').forEach(el => {
         el.setAttribute('spellcheck', 'false');
     });
 
-    // 2. LÓGICA DAS LUZES DOS BOTÕES DE FORMATAÇÃO
     const editores = document.querySelectorAll('.editor-rico');
     const botoesFormato = document.querySelectorAll('.btn-formato');
 
-    // Ação de formatar ao clicar no botão
     botoesFormato.forEach(btn => {
         btn.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // Impede que o texto perca a seleção ao clicar no botão
+            e.preventDefault(); 
             const cmd = btn.getAttribute('data-cmd');
             document.execCommand(cmd, false, null);
-            verificarFormatacaoAtiva(); // Atualiza a luz na hora
-            document.getElementById("avisoNaoSalvo")?.classList.remove("hidden"); // Aciona aviso de salvar
+            verificarFormatacaoAtiva(); 
+            alertarSalvar(); 
         });
     });
 
-    // Função que olha onde o cursor está e acende os botões correspondentes
     function verificarFormatacaoAtiva() {
         botoesFormato.forEach(btn => {
             const cmd = btn.getAttribute('data-cmd');
-            
-            // O queryCommandState retorna "true" se o formato estiver aplicado onde o cursor está
             if (document.queryCommandState(cmd)) {
-                // Acende o botão (Azul)
                 btn.classList.add('bg-blue-600', 'text-white', 'shadow-inner');
                 btn.classList.remove('text-gray-400', 'hover:bg-gray-700');
             } else {
-                // Apaga o botão (Cinza)
                 btn.classList.remove('bg-blue-600', 'text-white', 'shadow-inner');
                 btn.classList.add('text-gray-400', 'hover:bg-gray-700');
             }
         });
     }
 
-    // Fica vigiando o editor: Se o jogador clicar ou usar as setas do teclado, verifica as luzes
     editores.forEach(editor => {
         editor.addEventListener('keyup', verificarFormatacaoAtiva);
         editor.addEventListener('mouseup', verificarFormatacaoAtiva);
