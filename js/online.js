@@ -1,5 +1,5 @@
 // js/online.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -11,7 +11,8 @@ const firebaseConfig = {
     appId: "1:244238439870:web:974a21e2c76fce6ffad5ef"
 };
 
-const app = initializeApp(firebaseConfig);
+// 1. BLINDAGEM DO FIREBASE (Evita o erro de duplicação)
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const onlineRef = doc(db, "sessao", "online");
 
@@ -22,13 +23,18 @@ const meuPerfil = localStorage.getItem("meu_perfil");
 const isFicha = window.location.pathname.includes("fichas/");
 const caminhoLogin = isFicha ? "../login.html" : "login.html";
 
-// Se o safadinho tentar entrar no site pelo link da ficha sem ter logado, chuta pro Login!
+// Se tentar entrar sem logar, chuta pro Login!
 if (!meuPerfil) {
     window.location.href = caminhoLogin;
+} else {
+    // 2. A CORREÇÃO DE PRESENÇA! 
+    // Assim que a página abrir, grita pro Firebase que você está vivo e online.
+    // Isso anula o fato de você ter ficado "offline" por milissegundos ao mudar de tela ou dar F5.
+    setDoc(onlineRef, { [meuPerfil]: true }, { merge: true });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Constrói a Barra Topo via JavaScript
+    // Constrói a Barra Topo via JavaScript
     const barra = document.createElement("div");
     barra.className = "fixed top-0 left-0 w-full bg-gray-950 border-b border-gray-800 z-[100] flex justify-between items-center px-6 py-3 shadow-lg";
     
@@ -40,10 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </button>
     `;
 
-    // Gruda no topo da tela
     document.body.prepend(barra);
     
-    // Empurra o site inteiro 50px pra baixo pra barra não esconder o botão voltar ou iniciativa
+    // Empurra o site inteiro 50px pra baixo
     document.body.style.paddingTop = "50px"; 
 
     // Lógica do Botão Sair
@@ -53,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = caminhoLogin;
     });
 
-    // 2. Escuta o Firebase para pintar as bolinhas verde/cinza
+    // Escuta o Firebase para pintar as bolinhas
     const divJogadores = document.getElementById("barra-jogadores");
     onSnapshot(onlineRef, (snap) => {
         const dados = snap.exists() ? snap.data() : {};
@@ -69,9 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// 3. O Detalhe Ninja: Libera a vaga automaticamente se ele fechar a aba
+// O Detalhe Ninja: Fica offline ao fechar a aba
 window.addEventListener("beforeunload", () => {
     if(meuPerfil) {
+        // Envia um último suspiro pra nuvem antes da aba morrer
         setDoc(onlineRef, { [meuPerfil]: false }, { merge: true });
     }
 });

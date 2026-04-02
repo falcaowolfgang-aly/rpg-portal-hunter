@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 import { iniciarCalculadora, addDigito, limparCalc, apagarUltimo, calcularResultado } from "./calculadora.js";
 
 const firebaseConfig = {
@@ -17,6 +17,7 @@ const db = getFirestore(app);
 const urlParams = new URLSearchParams(window.location.search);
 let jogadorId = urlParams.get('id') || "jogador1";
 const fichaRef = doc(db, "fichas", jogadorId);
+const iniciativaRef = doc(db, "combate", "estado_atual"); // COLOQUE ESTA LINHA AQUI!
 
 const mapaPericias = {
     "Atletismo": "corpo", "Acrobacia": "movimento", "Furtividade": "movimento",
@@ -409,3 +410,120 @@ window.addDigito = addDigito;
 window.limparCalc = limparCalc;
 window.apagarUltimo = apagarUltimo;
 window.calcularResultado = calcularResultado;
+
+// ==========================================
+// INICIATIVA MULTIPLAYER (FIREBASE)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    const btnIniciativa = document.getElementById('btn-iniciativa');
+    
+    if (btnIniciativa) {
+        const painelIniciativa = document.getElementById('painel-iniciativa');
+        const viewMode = document.getElementById('iniciativa-view-mode');
+        const editMode = document.getElementById('iniciativa-edit-mode');
+        const displayIniciativa = document.getElementById('iniciativa-display');
+        const textareaIniciativa = document.getElementById('iniciativa-textarea');
+        const btnEditarIniciativa = document.getElementById('btn-editar-iniciativa');
+        const btnConfirmarIniciativa = document.getElementById('btn-confirmar-iniciativa');
+
+        // Abrir/Fechar painel
+        btnIniciativa.addEventListener('click', () => {
+            painelIniciativa.classList.toggle('hidden');
+        });
+
+        // Modo de Edição
+        btnEditarIniciativa.addEventListener('click', () => {
+            const textoAtual = displayIniciativa.innerText;
+            textareaIniciativa.value = textoAtual === "Nenhum combate ativo." ? "" : textoAtual;
+            viewMode.classList.add('hidden');
+            editMode.classList.remove('hidden');
+        });
+
+        function atualizarDisplay(texto) {
+            if(displayIniciativa) {
+                displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
+            }
+        }
+
+        // Salvar na Nuvem
+        btnConfirmarIniciativa.addEventListener('click', async () => {
+            const novoTexto = textareaIniciativa.value.trim();
+            const btnTextoOriginal = btnConfirmarIniciativa.innerText;
+            
+            btnConfirmarIniciativa.innerText = "ENVIANDO...";
+
+            try {
+                // Aqui usamos a iniciativaRef que deve estar declarada no topo do arquivo!
+                await setDoc(iniciativaRef, { texto: novoTexto });
+                editMode.classList.add('hidden');
+                viewMode.classList.remove('hidden');
+            } catch (erro) {
+                console.error("Erro ao salvar iniciativa:", erro);
+                alert("Erro ao sincronizar iniciativa. Verifique a internet.");
+            } finally {
+                btnConfirmarIniciativa.innerText = btnTextoOriginal;
+            }
+        });
+
+        // ESCUTA O FIREBASE EM TEMPO REAL
+        if (typeof iniciativaRef !== 'undefined') {
+            onSnapshot(iniciativaRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    atualizarDisplay(docSnap.data().texto);
+                } else {
+                    atualizarDisplay("");
+                }
+            });
+        }
+    }
+});
+
+// ==========================================
+// MELHORIAS DE UX (TEXTO E FORMATAÇÃO)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. MATA AS LINHAS VERMELHAS (Desativa o spellcheck globalmente)
+    document.querySelectorAll('input[type="text"], textarea, [contenteditable="true"]').forEach(el => {
+        el.setAttribute('spellcheck', 'false');
+    });
+
+    // 2. LÓGICA DAS LUZES DOS BOTÕES DE FORMATAÇÃO
+    const editores = document.querySelectorAll('.editor-rico');
+    const botoesFormato = document.querySelectorAll('.btn-formato');
+
+    // Ação de formatar ao clicar no botão
+    botoesFormato.forEach(btn => {
+        btn.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Impede que o texto perca a seleção ao clicar no botão
+            const cmd = btn.getAttribute('data-cmd');
+            document.execCommand(cmd, false, null);
+            verificarFormatacaoAtiva(); // Atualiza a luz na hora
+            document.getElementById("avisoNaoSalvo")?.classList.remove("hidden"); // Aciona aviso de salvar
+        });
+    });
+
+    // Função que olha onde o cursor está e acende os botões correspondentes
+    function verificarFormatacaoAtiva() {
+        botoesFormato.forEach(btn => {
+            const cmd = btn.getAttribute('data-cmd');
+            
+            // O queryCommandState retorna "true" se o formato estiver aplicado onde o cursor está
+            if (document.queryCommandState(cmd)) {
+                // Acende o botão (Azul)
+                btn.classList.add('bg-blue-600', 'text-white', 'shadow-inner');
+                btn.classList.remove('text-gray-400', 'hover:bg-gray-700');
+            } else {
+                // Apaga o botão (Cinza)
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-inner');
+                btn.classList.add('text-gray-400', 'hover:bg-gray-700');
+            }
+        });
+    }
+
+    // Fica vigiando o editor: Se o jogador clicar ou usar as setas do teclado, verifica as luzes
+    editores.forEach(editor => {
+        editor.addEventListener('keyup', verificarFormatacaoAtiva);
+        editor.addEventListener('mouseup', verificarFormatacaoAtiva);
+        editor.addEventListener('click', verificarFormatacaoAtiva);
+    });
+});
