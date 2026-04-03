@@ -88,21 +88,41 @@ if(btnAddItem) btnAddItem.addEventListener("click", () => criarTemplateItem());
 const containerImagens = document.getElementById("lista-imagens");
 const btnAddImagem = document.getElementById("add-imagem");
 
-function criarTemplateImagem(url = "", desc = "") {
+function criarTemplateImagem(url = "", desc = "", oculta = false) {
     const div = document.createElement("div");
-    div.className = "card-imagem bg-gray-900 p-4 rounded-xl border border-gray-700 flex flex-col gap-3 relative animate-fade-in shadow-xl";
+    // Classe "group" adicionada para fazer a barra aparecer só no hover
+    div.className = "card-imagem group bg-gray-900 p-2 rounded-xl border border-gray-700 flex flex-col relative animate-fade-in shadow-xl";
 
     div.innerHTML = `
-        <button type="button" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold btn-remover-img shadow-lg z-10 transition-transform hover:scale-110">&times;</button>
-        <div class="w-full h-auto bg-gray-900 rounded-lg border border-gray-700 overflow-hidden relative group flex items-center justify-center p-1 min-h-[150px]">
-            <img src="${url || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo'}" class="w-full h-auto max-h-[500px] object-contain block preview-img transition-transform duration-500 group-hover:scale-105 rounded" alt="Arte">
+        <div class="flex justify-between items-center bg-gray-800/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-700 drag-img cursor-move opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 left-4 right-4 z-20 shadow-lg">
+            <div class="text-gray-400 hover:text-white px-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
+            <div class="flex gap-1">
+                <button type="button" class="btn-toggle-img text-gray-400 hover:text-blue-400 font-bold px-2 rounded transition" title="Esconder/Mostrar Textos">👁️</button>
+                <button type="button" class="text-gray-400 hover:text-red-500 font-bold px-2 rounded transition btn-remover-img" title="Apagar">&times;</button>
+            </div>
         </div>
-        <input type="text" placeholder="Cole o link da imagem aqui..." value="${url}" class="w-full bg-gray-800 text-white text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 campo-img-url mt-2">
-        <textarea placeholder="Descrição da arte..." class="w-full bg-gray-800 text-gray-300 text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 resize-none h-20 campo-img-desc custom-scrollbar">${desc}</textarea>
+        
+        <div class="w-full flex-1 bg-gray-900 rounded-lg border border-gray-700 overflow-hidden relative flex items-center justify-center p-2 min-h-[150px]">
+            <img src="${url || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo'}" class="max-w-full max-h-[500px] object-contain m-auto preview-img transition-transform duration-500 hover:scale-105 rounded shadow-lg" alt="Arte">
+        </div>
+        
+        <div class="img-detalhes flex flex-col gap-2 ${oculta ? 'hidden' : 'mt-3'}">
+            <input type="text" placeholder="Cole o link da imagem aqui..." value="${url}" class="w-full bg-gray-800 text-white text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 campo-img-url">
+            <textarea placeholder="Descrição da arte..." class="w-full bg-gray-800 text-gray-300 text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 resize-none h-20 campo-img-desc custom-scrollbar">${desc}</textarea>
+        </div>
     `;
 
     const inputUrl = div.querySelector(".campo-img-url");
     const imgPreview = div.querySelector(".preview-img");
+    const detalhes = div.querySelector(".img-detalhes");
+    const btnToggle = div.querySelector(".btn-toggle-img");
+    
+    // Lógica do botão do Olhinho (👁️)
+    btnToggle.addEventListener("click", () => {
+        detalhes.classList.toggle("hidden");
+        detalhes.classList.toggle("mt-3");
+        alertarSalvar();
+    });
     
     inputUrl.addEventListener("input", (e) => {
         imgPreview.src = e.target.value || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo';
@@ -110,10 +130,8 @@ function criarTemplateImagem(url = "", desc = "") {
     });
 
     div.querySelector(".campo-img-desc").addEventListener("input", alertarSalvar);
-    div.querySelector(".btn-remover-img").addEventListener("click", () => {
-        div.remove();
-        alertarSalvar();
-    });
+    div.querySelector(".btn-remover-img").addEventListener("click", () => { div.remove(); alertarSalvar(); });
+
     containerImagens.appendChild(div);
 }
 
@@ -212,17 +230,22 @@ function criarElementoNota(notaObj, arrayPai) {
         div.querySelector(".drag-nota").ondblclick = abrirPasta;
 
     } else if (notaObj.tipo === "accordion") {
-        // TIPO 2: ACORDEÃO
+        // TIPO 2: ACORDEÃO (Agora com Memória de Estado)
         div.classList.replace("focus-within:border-purple-500", "focus-within:border-blue-500");
         if(!notaObj.itens) notaObj.itens = [];
 
+        // Verifica a memória: ele estava aberto ou fechado da última vez?
+        const isAberto = notaObj.aberto === true;
+        const rotacaoSeta = isAberto ? "rotate(0deg)" : "rotate(-90deg)";
+        const classeCorpo = isAberto ? "" : "hidden";
+
         div.innerHTML = `
             <div class="bg-blue-900/20 p-2 flex justify-between items-center border-b border-gray-700 drag-nota cursor-move">
-                <button type="button" class="text-blue-400 mr-2 hover:text-white transition-transform transform btn-toggle">▼</button>
+                <button type="button" class="text-blue-400 mr-2 hover:text-white transition-transform transform btn-toggle" style="transform: ${rotacaoSeta}">▼</button>
                 <input type="text" placeholder="Título do Acordeão..." value="${notaObj.titulo || ''}" class="bg-transparent text-blue-400 font-bold text-sm outline-none w-full mr-2">
                 ${btnRemover}
             </div>
-            <div class="corpo-accordion flex flex-col hidden">
+            <div class="corpo-accordion flex flex-col ${classeCorpo}">
                 <div class="p-2 flex flex-col gap-3 container-itens-ac min-h-[40px] bg-gray-950/50"></div>
                 <div class="p-2 border-t border-gray-800 bg-gray-900/50 flex justify-center gap-2">
                     <button type="button" class="text-gray-400 hover:text-purple-400 text-[10px] font-bold uppercase bg-gray-800 px-3 py-1 rounded border border-gray-700 btn-add-txt">+ Nota</button>
@@ -236,9 +259,20 @@ function criarElementoNota(notaObj, arrayPai) {
         const containerItens = div.querySelector(".container-itens-ac");
 
         div.querySelector("input").oninput = (e) => { notaObj.titulo = e.target.value; alertarSalvar(); };
+        
+        // A mágica acontece aqui: ao clicar, ele salva na memória se ficou aberto ou fechado
         btnToggle.onclick = () => {
-            corpo.classList.toggle("hidden");
-            btnToggle.style.transform = corpo.classList.contains("hidden") ? "rotate(-90deg)" : "rotate(0deg)";
+            const vaiAbrir = corpo.classList.contains("hidden");
+            if (vaiAbrir) {
+                corpo.classList.remove("hidden");
+                btnToggle.style.transform = "rotate(0deg)";
+                notaObj.aberto = true; // Salva no HD que está aberto
+            } else {
+                corpo.classList.add("hidden");
+                btnToggle.style.transform = "rotate(-90deg)";
+                notaObj.aberto = false; // Salva no HD que está fechado
+            }
+            alertarSalvar(); // Avisa o sistema que teve uma alteração para o jogador clicar em Salvar
         };
 
         const renderizarFilhosAc = () => {
@@ -394,6 +428,25 @@ window.toggleTamanho = function(botao, eixo) {
 };
 
 // ==========================================
+// MODO MINIMIZAR CARDS
+// ==========================================
+window.toggleMinimizar = function(botao) {
+    const secao = botao.closest('.secao-arrastavel');
+    if (!secao) return;
+
+    secao.classList.toggle('minimizada');
+    
+    const btnMin = secao.querySelector('.btn-min');
+    if (secao.classList.contains('minimizada')) {
+        btnMin.classList.add('text-yellow-400', 'bg-gray-800'); // Fica amarelo aceso
+    } else {
+        btnMin.classList.remove('text-yellow-400', 'bg-gray-800'); // Apaga
+    }
+    
+    alertarSalvar();
+};
+
+// ==========================================
 // ARRASTAR E SOLTAR (SORTABLEJS GERAL)
 // ==========================================
 if (window.Sortable) {
@@ -412,6 +465,15 @@ if (window.Sortable) {
         new Sortable(areaInv, {
             handle: '.drag-item',
             animation: 150,
+            onEnd: alertarSalvar
+        });
+    }
+
+    if (containerImagens) {
+        new Sortable(containerImagens, {
+            handle: '.drag-img',
+            animation: 200,
+            ghostClass: 'opacity-40',
             onEnd: alertarSalvar
         });
     }
@@ -458,6 +520,16 @@ async function carregarFicha() {
                             if (item.tamanho === 'bloco-2x1') btnLargo.classList.add('text-blue-400', 'bg-gray-800');
                             if (item.tamanho === 'bloco-1x2') btnAlto.classList.add('text-blue-400', 'bg-gray-800');
                         }
+
+                        // LÓGICA DE LEMBRAR SE ESTAVA MINIMIZADO
+                        const btnMin = secao.querySelector('.btn-min');
+                        if (item.minimizada) {
+                            secao.classList.add('minimizada');
+                            if(btnMin) btnMin.classList.add('text-yellow-400', 'bg-gray-800');
+                        } else {
+                            secao.classList.remove('minimizada');
+                            if(btnMin) btnMin.classList.remove('text-yellow-400', 'bg-gray-800');
+                        }
                     } 
                 });
             } 
@@ -492,7 +564,7 @@ async function carregarFicha() {
             // 5. CARREGA GALERIA
             if (dados.galeria && Array.isArray(dados.galeria)) {
                 containerImagens.innerHTML = "";
-                dados.galeria.forEach(img => criarTemplateImagem(img.url, img.desc));
+                dados.galeria.forEach(img => criarTemplateImagem(img.url, img.desc, img.oculta));
             }
 
             // 6. CARREGA ANOTAÇÕES (SISTEMA DE ARQUIVOS)
@@ -562,8 +634,14 @@ if(btnSalvar) {
         dadosParaSalvar.inventario = itens;
 
         const galeria = [];
-        document.querySelectorAll(".card-imagem").forEach(el => galeria.push({url: el.querySelector(".campo-img-url").value, desc: el.querySelector(".campo-img-desc").value}));
-        dadosParaSalvar.galeria = galeria;
+                document.querySelectorAll(".card-imagem").forEach(el => {
+                    galeria.push({
+                        url: el.querySelector(".campo-img-url").value, 
+                        desc: el.querySelector(".campo-img-desc").value,
+                        oculta: el.querySelector(".img-detalhes").classList.contains("hidden") // <--- A MÁGICA DE SALVAR
+                    });
+                });
+                dadosParaSalvar.galeria = galeria;
 
         // SALVA AS ANOTAÇÕES: É só copiar o "HD Virtual" inteiro pra nuvem, numa linha só!
         dadosParaSalvar.anotacoes = window.sistemaNotas;
@@ -573,7 +651,11 @@ if(btnSalvar) {
             let tamanho = 'bloco-1x1';
             if (secao.classList.contains('bloco-2x1')) tamanho = 'bloco-2x1';
             if (secao.classList.contains('bloco-1x2')) tamanho = 'bloco-1x2';
-            ordemGrid.push({ id: secao.id, tamanho: tamanho });
+            ordemGrid.push({ 
+                id: secao.id, 
+                tamanho: tamanho,
+                minimizada: secao.classList.contains('minimizada') // <-- NOVA LINHA AQUI
+            });
         });
         dadosParaSalvar.ordem_grid = ordemGrid;
 

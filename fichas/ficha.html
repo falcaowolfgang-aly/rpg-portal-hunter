@@ -15,30 +15,31 @@
     input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
-    /* ========================================== */
-    /* O NOVO TABULEIRO INTELIGENTE (GRID DENSE)  */
+/* ========================================== */
+    /* O NOVO TABULEIRO INTELIGENTE (MATEMÁTICO)  */
     /* ========================================== */
     .grid-tabuleiro {
         display: grid;
         grid-template-columns: repeat(1, minmax(0, 1fr));
-        gap: 1.5rem;
+        gap: 1.5rem; /* Gap de 24px */
+        grid-auto-rows: 61px; /* <-- A MÁGICA: Cada "slot" tem exatamente o tamanho de um card minimizado */
         grid-auto-flow: dense;
         padding-bottom: 4rem;
-        min-height: 80vh; /* <-- NOVA LINHA: Garante espaço vazio arrastável embaixo */
+        min-height: 80vh; 
     }
 
     @media (min-width: 1024px) {
         .grid-tabuleiro { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-    /* As classes de tamanho dos blocos. A altura base é 480px. */
-    .bloco-1x1 { grid-column: span 1; grid-row: span 1; height: 480px; }
-    .bloco-2x1 { grid-column: span 2; grid-row: span 1; height: 480px; }
-    
-    /* 1x2 significa Altura Dupla: 480 + 480 + 24px (o gap entre eles) = 984px */
-    .bloco-1x2 { grid-column: span 1; grid-row: span 2; height: 984px; } 
+    /* Blocos Normais: 6 slots de 61px + 5 gaps de 24px = 486px de altura.
+       Blocos Altos (1x2): 12 slots de 61px + 11 gaps de 24px = 996px de altura.
+    */
+    .bloco-1x1 { grid-column: span 1; grid-row: span 6; height: 486px; }
+    .bloco-2x1 { grid-column: span 2; grid-row: span 6; height: 486px; }
+    .bloco-1x2 { grid-column: span 1; grid-row: span 12; height: 996px; } 
 
-    /* Proteção para telas pequenas (Celulares) - Tudo volta a ser 1x1 */
+    /* Proteção para Celulares */
     @media (max-width: 1023px) {
         .bloco-2x1 { grid-column: span 1; }
     }
@@ -62,6 +63,21 @@
     /* Ajuste para não deixar o input do Widget de Dados gigante demais */
     #input-formula {
         font-size: 1rem !important; 
+    }
+
+/* ========================================== */
+    /* MODO MINIMIZADO DOS CARDS DA FICHA         */
+    /* ========================================== */
+    .secao-arrastavel.minimizada {
+        grid-row: span 1 !important; /* Ocupa apenas 1 slot no tabuleiro! */
+        height: 61px !important;
+        min-height: 61px !important;
+    }
+    .secao-arrastavel.minimizada > div:nth-child(2) {
+        display: none !important; /* Esconde o corpo da seção */
+    }
+    .secao-arrastavel.minimizada > div:nth-child(1) {
+        border-bottom: none !important; /* Remove a linha do título para ficar liso */
     }
     </style>
 </head>
@@ -99,12 +115,12 @@
                     <div class="flex justify-between items-center p-4 bg-gray-900/50 border-b border-gray-700 shrink-0">
                         <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Características</h2>
                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
                         </div>
-                    </div>
-                    <div class="p-4 flex-1 overflow-y-auto scroll-bloco flex flex-col">
+                    </div> <div class="p-4 flex-1 overflow-y-auto scroll-bloco flex flex-col">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 shrink-0">
                             <div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipo de Nen</label><input type="text" id="tipoNen" class="w-full bg-gray-900 border border-gray-600 focus:border-blue-500 rounded p-2 text-white outline-none"></div>
                             <div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Estilo de Luta</label><input type="text" id="estiloLuta" class="w-full bg-gray-900 border border-gray-600 focus:border-blue-500 rounded p-2 text-white outline-none"></div>
@@ -130,6 +146,7 @@
                     <div class="flex justify-between items-center p-4 bg-gray-900/50 border-b border-gray-700 shrink-0">
                         <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Status e Atributos</h2>
                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -181,7 +198,8 @@
                             <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Inventário</h2>
                             <button id="add-item" type="button" class="bg-green-700 hover:bg-green-600 text-white text-[10px] font-bold py-1 px-3 rounded-full">+ Novo</button>
                         </div>
-                        <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -196,6 +214,7 @@
                     <div class="flex justify-between items-center p-4 bg-gray-900/50 border-b border-gray-700 shrink-0">
                         <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Perícias</h2>
                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -226,6 +245,7 @@
                     <div class="flex justify-between items-center p-4 bg-gray-900/50 border-b border-gray-700 shrink-0">
                         <h2 class="text-xl font-bold text-white uppercase tracking-widest text-xs opacity-70">Habilidades Gerais</h2>
                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -246,7 +266,8 @@
                 <section id="sec-hatsu" class="secao-arrastavel bloco-1x1 bg-gray-800 rounded-lg border border-gray-700 shadow-xl relative transition-all duration-300 flex flex-col overflow-hidden">
                     <div class="flex justify-between items-center p-4 bg-gray-900/50 border-b border-gray-700 shrink-0">
                         <h2 class="text-xl font-bold text-red-400 uppercase tracking-widest text-xs opacity-70">Hatsu</h2>
-                        <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                         <div class="flex items-center gap-1 bg-gray-900 rounded p-1 shadow">
+                            <button type="button" onclick="toggleMinimizar(this)" class="btn-min text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Minimizar/Restaurar">—</button>
                             <button type="button" onclick="toggleTamanho(this, 'horizontal')" class="btn-largo text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Horizontal">↔</button>
                             <button type="button" onclick="toggleTamanho(this, 'vertical')" class="btn-alto text-xs font-bold px-2 py-1 rounded text-gray-500 hover:text-white hover:bg-gray-700 transition" title="Ligar/Desligar Expansão Vertical">↕</button>
                             <div class="drag-handle cursor-move text-gray-500 hover:text-white transition px-2 border-l border-gray-700 ml-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -320,60 +341,64 @@
             </button>
         </div>
     </div>
-    <div class="fixed top-1/4 left-0 z-50">
-        <button id="btn-iniciativa" class="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-red-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
-            <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Iniciativa</span>
-        </button>
+    <div class="fixed top-1/2 -translate-y-1/2 left-0 z-50 flex flex-col gap-6">
+        
+        <div class="relative">
+            <button id="btn-iniciativa" class="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-red-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Iniciativa</span>
+            </button>
 
-        <div id="painel-iniciativa" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-red-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
-            <div id="iniciativa-view-mode" class="block">
-                <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">
-                    <h3 class="text-white font-bold uppercase tracking-wider text-sm">Ordem de Combate</h3>
-                    <button id="btn-editar-iniciativa" class="text-gray-400 hover:text-yellow-400 transition-colors" title="Editar Iniciativa">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            <div id="painel-iniciativa" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-red-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
+                <div id="iniciativa-view-mode" class="block">
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">
+                        <h3 class="text-white font-bold uppercase tracking-wider text-sm">Ordem de Combate</h3>
+                        <button id="btn-editar-iniciativa" class="text-gray-400 hover:text-yellow-400 transition-colors" title="Editar Iniciativa">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                    </div>
+                    <div id="iniciativa-display" class="text-gray-300 text-sm whitespace-pre-wrap min-h-[80px] font-mono leading-relaxed">Nenhum combate ativo.</div>
+                </div>
+
+                <div id="iniciativa-edit-mode" class="hidden">
+                    <div class="border-b border-gray-700 pb-2 mb-3">
+                        <h3 class="text-yellow-500 font-bold uppercase tracking-wider text-sm">Editando...</h3>
+                    </div>
+                    <textarea id="iniciativa-textarea" rows="6" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 outline-none focus:border-yellow-500 resize-none font-mono text-sm" placeholder="Ex:&#10;1. Satsu (20)&#10;2. Goblin 1 (15)"></textarea>
+                    <button id="btn-confirmar-iniciativa" class="mt-3 w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 rounded shadow transition-colors">
+                        CONFIRMAR
                     </button>
                 </div>
-                <div id="iniciativa-display" class="text-gray-300 text-sm whitespace-pre-wrap min-h-[80px] font-mono leading-relaxed">Nenhum combate ativo.</div>
             </div>
+        </div>
 
-            <div id="iniciativa-edit-mode" class="hidden">
-                <div class="border-b border-gray-700 pb-2 mb-3">
-                    <h3 class="text-yellow-500 font-bold uppercase tracking-wider text-sm">Editando...</h3>
+        <div class="relative">
+            <button id="btn-dados" class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-blue-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Dados</span>
+            </button>
+
+            <div id="painel-dados" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-blue-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
+                <div class="border-b border-gray-700 pb-2 mb-4">
+                    <h3 class="text-white font-bold uppercase tracking-wider text-sm">Rolagem de Dados</h3>
                 </div>
-                <textarea id="iniciativa-textarea" rows="6" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 outline-none focus:border-yellow-500 resize-none font-mono text-sm" placeholder="Ex:&#10;1. Satsu (20)&#10;2. Goblin 1 (15)"></textarea>
-                <button id="btn-confirmar-iniciativa" class="mt-3 w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 rounded shadow transition-colors">
-                    CONFIRMAR
-                </button>
+                
+                <div class="mb-4">
+                    <label class="text-[10px] text-gray-400 font-bold uppercase mb-2 block tracking-wider">Fórmula (Ex: 2#1d6+2d20-1)</label>
+                    <input type="text" id="input-formula" class="w-full bg-gray-800 text-white p-3 rounded border border-gray-600 outline-none focus:border-blue-500 font-mono text-sm tracking-widest placeholder-gray-600" placeholder="Ex: 2#1d6+2d20-1">
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <button id="btn-limpar-dados" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded shadow transition-colors text-xs">LIMPAR</button>
+                    <button id="btn-rolar-dados" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded shadow-lg transition-transform transform hover:scale-105 tracking-widest text-lg border border-blue-700">ROLAR!</button>
+                </div>
+
+                <div id="resultado-rolagens" class="bg-gray-800 p-2 rounded-lg border border-gray-700 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col gap-2">
+                    <div class="text-center text-gray-500 text-xs italic py-4">Digite uma fórmula acima para rolar.</div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="fixed top-[calc(55%-95px)] left-0 z-50">
-        <button id="btn-dados" class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-blue-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-            <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Dados</span>
-        </button>
-
-        <div id="painel-dados" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-blue-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
-            <div class="border-b border-gray-700 pb-2 mb-4">
-                <h3 class="text-white font-bold uppercase tracking-wider text-sm">Rolagem de Dados</h3>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-[10px] text-gray-400 font-bold uppercase mb-2 block tracking-wider">Fórmula (Ex: 2#1d6+2d20-1)</label>
-                <input type="text" id="input-formula" class="w-full bg-gray-800 text-white p-3 rounded border border-gray-600 outline-none focus:border-blue-500 font-mono text-sm tracking-widest placeholder-gray-600" placeholder="Ex: 2#1d6+2d20-1">
-            </div>
-
-            <div class="flex gap-2 mb-4">
-                <button id="btn-limpar-dados" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded shadow transition-colors text-xs">LIMPAR</button>
-                <button id="btn-rolar-dados" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded shadow-lg transition-transform transform hover:scale-105 tracking-widest text-lg border border-blue-700">ROLAR!</button>
-            </div>
-
-            <div id="resultado-rolagens" class="bg-gray-800 p-2 rounded-lg border border-gray-700 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col gap-2">
-                <div class="text-center text-gray-500 text-xs italic py-4">Digite uma fórmula acima para rolar.</div>
-            </div>
-        </div>
+        
     </div>
     <script type="module" src="../js/ficha.js"></script>
     <script type="module" src="../js/dados.js"></script>
