@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha do Personagem</title>
-    
+    <script>
+        // Se a tela for menor que 768px (celular ou tablet em pé), joga o usuário para o layout mobile
+        if (window.innerWidth <= 768) {
+            window.location.href = "ficha-mobile.html" + window.location.search;
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     

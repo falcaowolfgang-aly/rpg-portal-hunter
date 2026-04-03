@@ -43,10 +43,10 @@ function criarTemplateItem(nome = "", qtd = "1", desc = "") {
     itemDiv.className = "item-container bg-gray-900 p-2 rounded border border-gray-700 relative animate-fade-in mb-2 transition-colors hover:border-yellow-700";
     
     itemDiv.innerHTML = `
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 sm:gap-2">
             <div class="drag-item cursor-move text-gray-600 hover:text-white transition p-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
             <button type="button" class="btn-toggle-item text-yellow-500 hover:text-yellow-400 transition-transform duration-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
-            <input type="text" placeholder="Nome do Item" value="${nome}" class="flex-1 bg-gray-800 text-white text-sm p-1.5 rounded border border-gray-700 outline-none focus:border-yellow-600 campo-item-nome">
+            <input type="text" placeholder="Nome do Item" value="${nome}" class="flex-1 min-w-0 bg-gray-800 text-white text-sm p-1.5 rounded border border-gray-700 outline-none focus:border-yellow-600 campo-item-nome">
             <button type="button" class="text-gray-500 hover:text-red-500 font-bold btn-remover-item px-2">&times;</button>
         </div>
         <div class="item-body flex flex-col gap-2 mt-2 hidden">
@@ -456,6 +456,8 @@ if (window.Sortable) {
             animation: 300,
             handle: '.drag-handle',
             ghostClass: 'opacity-40',
+            delay: 200, // <--- ADICIONE ISSO
+            delayOnTouchOnly: true, // <--- E ISSO
             onEnd: alertarSalvar
         });
     }
@@ -465,7 +467,24 @@ if (window.Sortable) {
         new Sortable(areaInv, {
             handle: '.drag-item',
             animation: 150,
+            delay: 200, // <--- AQUI TAMBÉM
+            delayOnTouchOnly: true,
             onEnd: alertarSalvar
+        });
+    }
+
+    if (quadroAnotacoes) {
+        new Sortable(quadroAnotacoes, {
+            handle: '.drag-nota',
+            animation: 200,
+            ghostClass: 'opacity-40',
+            delay: 200, // <--- E AQUI!
+            delayOnTouchOnly: true,
+            onEnd: () => {
+                const arrayAtual = window.trilhaAtual[window.trilhaAtual.length - 1].ref;
+                atualizarOrdemArray(quadroAnotacoes, arrayAtual);
+                alertarSalvar();
+            }
         });
     }
 
@@ -478,18 +497,6 @@ if (window.Sortable) {
         });
     }
 
-    if (quadroAnotacoes) {
-        new Sortable(quadroAnotacoes, {
-            handle: '.drag-nota',
-            animation: 200,
-            ghostClass: 'opacity-40',
-            onEnd: () => {
-                const arrayAtual = window.trilhaAtual[window.trilhaAtual.length - 1].ref;
-                atualizarOrdemArray(quadroAnotacoes, arrayAtual);
-                alertarSalvar();
-            }
-        });
-    }
 }
 
 // ==========================================
@@ -770,4 +777,29 @@ document.addEventListener("DOMContentLoaded", () => {
         editor.addEventListener('mouseup', verificarFormatacaoAtiva);
         editor.addEventListener('click', verificarFormatacaoAtiva);
     });
+});
+
+// ==========================================
+// LÓGICA DE ROLAGEM VIA TECLADO (MOBILE)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    const campoFormula = document.getElementById('input-formula');
+    const botaoInvisivel = document.getElementById('btn-rolar-dados');
+
+    if (campoFormula) {
+        campoFormula.addEventListener('keydown', (e) => {
+            // Se o jogador apertar a tecla Enter ou o botão "Ir" do teclado mobile
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Impede que a página recarregue
+                
+                // Dispara o clique no botão invisível que já tem a lógica do seu dados.js
+                if (botaoInvisivel) {
+                    botaoInvisivel.click();
+                    
+                    // Limpa o campo após rolar para a próxima jogada
+                    setTimeout(() => { campoFormula.value = ""; }, 10);
+                }
+            }
+        });
+    }
 });
