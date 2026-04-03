@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha do Personagem</title>
     <script>
-        // Se a tela for menor que 768px (celular ou tablet em pé), joga o usuário para o layout mobile
-        if (window.innerWidth <= 768) {
-            window.location.href = "ficha-mobile.html" + window.location.search;
+        // Guarda de Trânsito Blindado: Redireciona para o Mobile apenas se a tela for pequena
+        // e garante que não estamos tentando redirecionar se já estivermos na página certa
+        if (window.innerWidth <= 768 && !window.location.pathname.includes("ficha-mobile.html")) {
+            // O "replace" apaga a página do PC do histórico de "voltar" do celular, 
+            // deixando a navegação muito mais limpa!
+            window.location.replace("ficha-mobile.html" + window.location.search);
         }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
