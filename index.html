@@ -11,318 +11,125 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        .rodape-container {
-            overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .rodape-jornal {
-            display: inline-block;
-            padding-left: 100%; /* Começa escondido na direita */
-            animation: rodarLetreiro 12s linear infinite;
-        }
-        @keyframes rodarLetreiro {
-            0%   { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); } /* Vai até sumir na esquerda */
-        }
-
-        /* ========================================== */
-        /* SETAS DO CARROSSEL EM FORMATO DE BOLINHA   */
-        /* ========================================== */
-        /* Esconde a seta padrão de texto do Swiper */
-        .swiper-button-next::after, .swiper-button-prev::after {
-            display: none !important; 
-        }
-        /* Desenha a bolinha */
-        .swiper-button-next, .swiper-button-prev {
-            width: 3rem !important;
-            height: 3rem !important;
-            background-color: #1f2937; /* Fundo gray-800 */
-            border: 2px solid #ef4444; /* Borda red-500 */
-            border-radius: 50%;
-            color: #ef4444; /* Cor do ícone */
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-        }
-        /* Efeito ao passar o mouse */
-        .swiper-button-next:hover, .swiper-button-prev:hover {
-            background-color: #ef4444;
-            color: white;
-            transform: scale(1.15);
-        }
+        .rodape-container { overflow: hidden; white-space: nowrap; width: 100%; box-sizing: border-box; }
+        .rodape-jornal { display: inline-block; padding-left: 100%; animation: rodarLetreiro 12s linear infinite; }
+        @keyframes rodarLetreiro { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        .swiper-button-next::after, .swiper-button-prev::after { display: none !important; }
+        .swiper-button-next, .swiper-button-prev { width: 3rem !important; height: 3rem !important; background-color: #1f2937; border: 2px solid #ef4444; border-radius: 50%; color: #ef4444; transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
+        .swiper-button-next:hover, .swiper-button-prev:hover { background-color: #ef4444; color: white; transform: scale(1.15); }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="fixed top-1/2 -translate-y-1/2 left-0 z-50 flex flex-col gap-6">
+
+    <div class="hidden">
+        <input type="text" id="nome" value="Sistema">
+        <input type="number" id="corpo" value="0">
+        <input type="number" id="movimento" value="0">
+        <input type="number" id="mente" value="0">
+        <input type="number" id="espirito" value="0">
+    </div>
+
+    <div class="fixed top-32 md:top-1/2 md:-translate-y-1/2 left-0 z-50 flex flex-col gap-4 md:gap-6">
         
         <div class="relative">
-            <button id="btn-iniciativa" class="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-red-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v8m0 4h.01" />
-                </svg>
-                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Iniciativa</span>
+            <button id="btn-iniciativa" class="bg-red-700 hover:bg-red-600 text-white font-bold py-3 md:py-4 px-1 md:px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-red-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v8m0 4h.01" /></svg>
+                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="hidden md:block tracking-widest mt-2 uppercase text-sm">Iniciativa</span>
             </button>
 
-            <div id="painel-iniciativa" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-red-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
+            <div id="painel-iniciativa" class="hidden absolute top-0 left-full ml-1 md:ml-2 w-64 md:w-80 bg-gray-900 border-2 border-red-700 rounded-xl shadow-2xl p-3 md:p-4 transition-all origin-left animate-fade-in">
                 <div id="iniciativa-view-mode" class="block">
-                    <div class="flex justify-between items-center border-b border-gray-700 pb-2 mb-3">
-                        <h3 class="text-white font-bold uppercase tracking-wider text-sm">Ordem de Combate</h3>
-                        <button id="btn-editar-iniciativa" class="text-gray-400 hover:text-yellow-400 transition-colors" title="Editar Iniciativa">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        </button>
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-1 md:pb-2 mb-2 md:mb-3">
+                        <h3 class="text-white font-bold uppercase tracking-wider text-[10px] md:text-sm">Ordem de Combate</h3>
+                        <button id="btn-editar-iniciativa" class="text-gray-400 hover:text-yellow-400 transition-colors" title="Editar Iniciativa"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
                     </div>
-                    <div id="iniciativa-display" class="text-gray-300 text-sm whitespace-pre-wrap min-h-[80px] font-mono leading-relaxed">Nenhum combate ativo.</div>
+                    <div id="iniciativa-display" class="text-gray-300 text-xs md:text-sm whitespace-pre-wrap min-h-[60px] md:min-h-[80px] font-mono leading-relaxed">Nenhum combate ativo.</div>
                 </div>
 
                 <div id="iniciativa-edit-mode" class="hidden">
-                    <div class="border-b border-gray-700 pb-2 mb-3">
-                        <h3 class="text-yellow-500 font-bold uppercase tracking-wider text-sm">Editando...</h3>
-                    </div>
-                    <textarea id="iniciativa-textarea" rows="6" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 outline-none focus:border-yellow-500 resize-none font-mono text-sm" placeholder=""></textarea>
-                    <button id="btn-confirmar-iniciativa" class="mt-3 w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 rounded shadow transition-colors">
-                        CONFIRMAR
-                    </button>
+                    <div class="border-b border-gray-700 pb-1 md:pb-2 mb-2 md:mb-3"><h3 class="text-yellow-500 font-bold uppercase tracking-wider text-[10px] md:text-sm">Editando...</h3></div>
+                    <textarea id="iniciativa-textarea" rows="4" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-600 outline-none focus:border-yellow-500 resize-none font-mono text-xs md:text-sm" placeholder=""></textarea>
+                    <button id="btn-confirmar-iniciativa" class="mt-2 md:mt-3 w-full bg-green-700 hover:bg-green-600 text-white font-bold py-1 md:py-2 text-xs md:text-base rounded shadow transition-colors">CONFIRMAR</button>
                 </div>
             </div>
         </div>
 
         <div class="relative">
-            <button id="btn-dados" class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-4 px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-blue-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
-                    <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
-                    <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
-                    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                </svg>
-                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="tracking-widest mt-2 uppercase text-sm">Dados</span>
+            <button id="btn-dados" class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 md:py-4 px-1 md:px-2 rounded-r-xl shadow-[4px_4px_10px_rgba(0,0,0,0.5)] border-2 border-l-0 border-blue-900 transition-all hover:pr-4 flex flex-col items-center gap-2 group relative z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+                <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="hidden md:block tracking-widest mt-2 uppercase text-sm">Dados</span>
             </button>
 
-            <div id="painel-dados" class="hidden absolute top-0 left-full ml-2 w-80 bg-gray-900 border-2 border-blue-700 rounded-xl shadow-2xl p-4 transition-all origin-left animate-fade-in">
-                <div class="border-b border-gray-700 pb-2 mb-4">
-                    <h3 class="text-white font-bold uppercase tracking-wider text-sm">Rolagem de Dados</h3>
-                </div>
+            <div id="painel-dados" class="hidden absolute top-0 left-full ml-1 md:ml-2 w-[80vw] md:w-80 bg-gray-900 border-2 border-blue-700 rounded-xl shadow-2xl p-2 md:p-4 transition-all origin-left animate-fade-in flex flex-col z-50">
                 
-                <div class="mb-4">
-                    <input type="text" id="input-formula" class="w-full bg-gray-800 text-white p-3 rounded border border-gray-600 outline-none focus:border-blue-500 font-mono text-sm tracking-widest placeholder-gray-600" placeholder="Ex: 2#1d6+2d20-1">
+                <div class="order-1 flex justify-between items-center border-b border-gray-700 pb-1 md:pb-2 px-1 md:px-0 mb-2 md:mb-4 flex-none">
+                    <h3 class="text-white font-bold uppercase tracking-widest text-[10px] md:text-sm flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse md:hidden"></span>
+                        <span class="md:hidden">Log Global</span>
+                        <span class="hidden md:inline">Rolagem de Dados</span>
+                    </h3>
+                    <button id="btn-fechar-dados-mobile" class="md:hidden text-gray-500 hover:text-red-400 transition" title="Fechar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
                 </div>
 
-                <div class="flex gap-2 mb-4">
-                    <button id="btn-limpar-dados" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded shadow transition-colors text-xs">LIMPAR</button>
-                    <button id="btn-rolar-dados" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded shadow-lg transition-transform transform hover:scale-105 tracking-widest text-lg border border-blue-700">ROLAR!</button>
+                <div class="order-3 md:order-2 mt-2 md:mt-0 mb-0 md:mb-4">
+                    <div class="bg-gray-950 md:bg-transparent p-1 md:p-0 rounded-full md:rounded-none border border-gray-700 md:border-none focus-within:border-blue-500 md:focus-within:border-transparent transition-colors shadow-inner md:shadow-none flex items-center md:block">
+                        <input type="text" id="input-formula" class="w-full bg-transparent md:bg-gray-800 text-white px-4 md:px-3 py-2 md:py-3 outline-none font-mono text-[14px] md:text-sm placeholder-gray-600 md:rounded md:border md:border-gray-600 md:focus:border-blue-500" placeholder="Fórmula (ex: 1d20+5)">
+                    </div>
+                    
+                    <div class="hidden md:flex gap-2 mt-4">
+                        <button id="btn-limpar-dados" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded shadow transition-colors text-xs">LIMPAR</button>
+                        <button id="btn-rolar-dados" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded shadow-lg transition-transform transform hover:scale-105 tracking-widest text-lg border border-blue-700">ROLAR!</button>
+                    </div>
                 </div>
 
-                <div id="resultado-rolagens" class="bg-gray-800 p-2 rounded-lg border border-gray-700 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col gap-2">
-                    <div class="text-center text-gray-500 text-xs italic py-4">Digite uma fórmula acima para rolar.</div>
+                <div id="resultado-rolagens" class="order-2 md:order-3 bg-gray-800 p-2 rounded-lg border border-gray-700 h-[350px] md:max-h-[300px] md:h-auto overflow-y-auto text-xs flex flex-col gap-2 scroll-bloco md:custom-scrollbar">
+                    <div class="text-center text-gray-500 text-xs italic py-4 hidden md:block">Digite uma fórmula acima para rolar.</div>
                 </div>
+
             </div>
         </div>
-        
     </div>
+    
     <header class="text-center mb-10 mt-10">
-        <h1 class="text-5xl font-bold text-red-500 mb-4">PORTAL HUNTER</h1>
+        <h1 class="text-5xl font-bold text-red-500 mb-4">Portal Hunter</h1>
         <p class="text-xl text-gray-400">Selecione seu personagem</p>
     </header>
 
     <div class="swiper mySwiper w-full max-w-5xl py-8">
         <div class="swiper-wrapper">
-            
-            <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-red-500 transition-colors duration-300 group">
-                    <img src="img/char1.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
-                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
-                        <div class="mb-2">
-                            <h2 id="card-nome-1" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 1</h2>
-                            <p id="card-nivel-1" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
-                            <div class="rodape-container mb-1">
-                                <p id="card-recado-1" class="text-red-400 italic font-medium drop-shadow-md rodape-jornal">...</p>
-                            </div>
-                        </div>
-                        <a href="fichas/ficha.html?id=jogador1" class="w-full inline-block bg-red-600/90 hover:bg-red-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
-                            Abrir Ficha
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-blue-500 transition-colors duration-300 group">
-                    <img src="img/char2.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
-                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
-                        <div class="mb-2">
-                            <h2 id="card-nome-2" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 2</h2>
-                            <p id="card-nivel-2" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
-                            <div class="rodape-container mb-1">
-                                <p id="card-recado-2" class="text-blue-400 italic font-medium drop-shadow-md rodape-jornal">...</p>
-                            </div>
-                        </div>
-                        <a href="fichas/ficha.html?id=jogador2" class="w-full inline-block bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(37,99,235,0.5)]">
-                            Abrir Ficha
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-green-500 transition-colors duration-300 group">
-                    <img src="img/char3.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
-                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
-                        <div class="mb-2">
-                            <h2 id="card-nome-3" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 3</h2>
-                            <p id="card-nivel-3" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
-                            <div class="rodape-container mb-1">
-                                <p id="card-recado-3" class="text-green-400 italic font-medium drop-shadow-md rodape-jornal">...</p>
-                            </div>
-                        </div>
-                        <a href="fichas/ficha.html?id=jogador3" class="w-full inline-block bg-green-600/90 hover:bg-green-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(22,163,74,0.5)]">
-                            Abrir Ficha
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="swiper-slide flex justify-center">
-                <div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-purple-500 transition-colors duration-300 group">
-                    <img src="img/char4.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div>
-                    <div class="relative z-10 flex flex-col justify-end h-full p-8">
-                        <div class="mb-2">
-                            <h2 id="card-nome-4" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 4</h2>
-                            <p id="card-nivel-4" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p>
-                            <div class="rodape-container mb-1">
-                                <p id="card-recado-4" class="text-purple-400 italic font-medium drop-shadow-md rodape-jornal">...</p>
-                            </div>
-                        </div>
-                        <a href="fichas/ficha.html?id=jogador4" class="w-full inline-block bg-purple-600/90 hover:bg-purple-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(147,51,234,0.5)]">
-                            Abrir Ficha
-                        </a>
-                    </div>
-                </div>
-            </div>
-
+            <div class="swiper-slide flex justify-center"><div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-red-500 transition-colors duration-300 group"><img src="img/char1.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div><div class="relative z-10 flex flex-col justify-end h-full p-8"><div class="mb-2"><h2 id="card-nome-1" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 1</h2><p id="card-nivel-1" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p><div class="rodape-container mb-1"><p id="card-recado-1" class="text-red-400 italic font-medium drop-shadow-md rodape-jornal">...</p></div></div><a href="fichas/ficha.html?id=jogador1" class="w-full inline-block bg-red-600/90 hover:bg-red-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]">Abrir Ficha</a></div></div></div>
+            <div class="swiper-slide flex justify-center"><div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-blue-500 transition-colors duration-300 group"><img src="img/char2.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div><div class="relative z-10 flex flex-col justify-end h-full p-8"><div class="mb-2"><h2 id="card-nome-2" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 2</h2><p id="card-nivel-2" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p><div class="rodape-container mb-1"><p id="card-recado-2" class="text-blue-400 italic font-medium drop-shadow-md rodape-jornal">...</p></div></div><a href="fichas/ficha.html?id=jogador2" class="w-full inline-block bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(37,99,235,0.5)]">Abrir Ficha</a></div></div></div>
+            <div class="swiper-slide flex justify-center"><div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-green-500 transition-colors duration-300 group"><img src="img/char3.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div><div class="relative z-10 flex flex-col justify-end h-full p-8"><div class="mb-2"><h2 id="card-nome-3" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 3</h2><p id="card-nivel-3" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p><div class="rodape-container mb-1"><p id="card-recado-3" class="text-green-400 italic font-medium drop-shadow-md rodape-jornal">...</p></div></div><a href="fichas/ficha.html?id=jogador3" class="w-full inline-block bg-green-600/90 hover:bg-green-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(22,163,74,0.5)]">Abrir Ficha</a></div></div></div>
+            <div class="swiper-slide flex justify-center"><div class="bg-gray-800 rounded-2xl border border-gray-700 text-center w-72 h-[420px] shadow-2xl relative overflow-hidden hover:border-purple-500 transition-colors duration-300 group"><img src="img/char4.png" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 group-hover:scale-110"><div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent z-0 pointer-events-none"></div><div class="relative z-10 flex flex-col justify-end h-full p-8"><div class="mb-2"><h2 id="card-nome-4" class="text-3xl font-bold text-white mb-1 drop-shadow-lg">Personagem 4</h2><p id="card-nivel-4" class="text-sm text-gray-300 font-bold mb-3 drop-shadow">Nível 1</p><div class="rodape-container mb-1"><p id="card-recado-4" class="text-purple-400 italic font-medium drop-shadow-md rodape-jornal">...</p></div></div><a href="fichas/ficha.html?id=jogador4" class="w-full inline-block bg-purple-600/90 hover:bg-purple-700 backdrop-blur-sm text-white font-bold py-3 px-6 rounded-lg transition duration-300 mt-2 shadow-[0_0_15px_rgba(147,51,234,0.5)]">Abrir Ficha</a></div></div></div>
         </div> 
-        <div class="swiper-button-prev">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-        </div>
-        
-        <div class="swiper-button-next">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-        </div>
+        <div class="swiper-button-prev"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></div>
+        <div class="swiper-button-next"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></div>
         <div class="swiper-pagination"></div>
     </div>
 
     <section class="w-full max-w-5xl mt-12 bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-2xl relative mb-12">
-        
         <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b border-gray-700 pb-4 gap-4">
-            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                Visão Geral da Party
-            </h2>
-            <button id="btn-atualizar-visao" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg active:scale-95">
-                <svg id="icone-atualizar" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                <span id="texto-atualizar-visao">Atualizar</span>
-            </button>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>Visão Geral da Party</h2>
+            <button id="btn-atualizar-visao" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg active:scale-95"><svg id="icone-atualizar" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg><span id="texto-atualizar-visao">Atualizar</span></button>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
-                <h3 id="vg-nome-1" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3>
-                
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-1" class="text-white">0</span> / <span id="vg-hp-max-1">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-1" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-1" class="text-white">0</span> / <span id="vg-pn-max-1">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-1" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-1" class="text-white">0</span> / <span id="vg-pr-max-1">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-1" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
-                <h3 id="vg-nome-2" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3>
-                
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-2" class="text-white">0</span> / <span id="vg-hp-max-2">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-2" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-2" class="text-white">0</span> / <span id="vg-pn-max-2">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-2" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-2" class="text-white">0</span> / <span id="vg-pr-max-2">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-2" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-green-600"></div>
-                <h3 id="vg-nome-3" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3>
-                
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-3" class="text-white">0</span> / <span id="vg-hp-max-3">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-3" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-3" class="text-white">0</span> / <span id="vg-pn-max-3">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-3" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-3" class="text-white">0</span> / <span id="vg-pr-max-3">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-3" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-
-            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-1 h-full bg-purple-600"></div>
-                <h3 id="vg-nome-4" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3>
-                
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-4" class="text-white">0</span> / <span id="vg-hp-max-4">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-4" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="mb-2 pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-4" class="text-white">0</span> / <span id="vg-pn-max-4">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-4" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-                <div class="pl-2">
-                    <div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-4" class="text-white">0</span> / <span id="vg-pr-max-4">0</span></span></div>
-                    <div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-4" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                </div>
-            </div>
-
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-red-600"></div><h3 id="vg-nome-1" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-1" class="text-white">0</span> / <span id="vg-hp-max-1">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-1" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-1" class="text-white">0</span> / <span id="vg-pn-max-1">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-1" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-1" class="text-white">0</span> / <span id="vg-pr-max-1">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-1" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div></div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-600"></div><h3 id="vg-nome-2" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-2" class="text-white">0</span> / <span id="vg-hp-max-2">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-2" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-2" class="text-white">0</span> / <span id="vg-pn-max-2">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-2" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-2" class="text-white">0</span> / <span id="vg-pr-max-2">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-2" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div></div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-green-600"></div><h3 id="vg-nome-3" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-3" class="text-white">0</span> / <span id="vg-hp-max-3">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-3" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-3" class="text-white">0</span> / <span id="vg-pn-max-3">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-3" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-3" class="text-white">0</span> / <span id="vg-pr-max-3">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-3" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div></div>
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-purple-600"></div><h3 id="vg-nome-4" class="text-lg font-bold text-white mb-3 truncate pl-2">Carregando...</h3><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-red-500">HP</span><span class="text-gray-400"><span id="vg-hp-atual-4" class="text-white">0</span> / <span id="vg-hp-max-4">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-hp-barra-4" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="mb-2 pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-blue-500">PN</span><span class="text-gray-400"><span id="vg-pn-atual-4" class="text-white">0</span> / <span id="vg-pn-max-4">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pn-barra-4" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div><div class="pl-2"><div class="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-wider"><span class="text-yellow-500">PR</span><span class="text-gray-400"><span id="vg-pr-atual-4" class="text-white">0</span> / <span id="vg-pr-max-4">0</span></span></div><div class="w-full bg-gray-800 rounded-full h-1.5"><div id="vg-pr-barra-4" class="bg-yellow-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div></div></div></div>
         </div>
-
-        
     </section>
+
     <a href="https://www.owlbear.rodeo/room/1A3GcSnep0cP/The%20Waste%20Lime" target="_blank" class="group relative flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-700 border-2 border-purple-600 hover:border-purple-400 text-white text-xl font-bold py-4 px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-    
-    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600/0 via-purple-600/10 to-purple-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600/0 via-purple-600/10 to-purple-600/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400 group-hover:text-purple-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+        <span>Campo de Batalha</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 absolute top-2 right-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+    </a>
 
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400 group-hover:text-purple-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-    </svg>
-
-    <span>Campo de Batalha</span>
-    
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 group-hover:text-gray-300 absolute top-2 right-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-    </svg>
-</a>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script type="module" src="js/main.js"></script>
 
@@ -338,10 +145,8 @@
             messagingSenderId: "244238439870",
             appId: "1:244238439870:web:974a21e2c76fce6ffad5ef"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
         const iniciativaRef = doc(db, "combate", "estado_atual");
 
         const btnIniciativa = document.getElementById('btn-iniciativa');
@@ -353,9 +158,7 @@
         const btnEditarIniciativa = document.getElementById('btn-editar-iniciativa');
         const btnConfirmarIniciativa = document.getElementById('btn-confirmar-iniciativa');
 
-        btnIniciativa.addEventListener('click', () => {
-            painelIniciativa.classList.toggle('hidden');
-        });
+        btnIniciativa.addEventListener('click', () => painelIniciativa.classList.toggle('hidden'));
 
         btnEditarIniciativa.addEventListener('click', () => {
             const textoAtual = displayIniciativa.innerText;
@@ -364,73 +167,82 @@
             editMode.classList.remove('hidden');
         });
 
-        function atualizarDisplay(texto) {
-            displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo.";
-        }
+        function atualizarDisplay(texto) { displayIniciativa.innerText = texto && texto.trim() !== "" ? texto : "Nenhum combate ativo."; }
 
         btnConfirmarIniciativa.addEventListener('click', async () => {
             const novoTexto = textareaIniciativa.value.trim();
             const btnTextoOriginal = btnConfirmarIniciativa.innerText;
-            
             btnConfirmarIniciativa.innerText = "ENVIANDO...";
-
             try {
                 await setDoc(iniciativaRef, { texto: novoTexto });
                 editMode.classList.add('hidden');
                 viewMode.classList.remove('hidden');
             } catch (erro) {
-                console.error("Erro ao salvar iniciativa:", erro);
-                alert("Erro ao sincronizar iniciativa. Verifique a internet.");
+                alert("Erro ao sincronizar iniciativa.");
             } finally {
                 btnConfirmarIniciativa.innerText = btnTextoOriginal;
             }
         });
 
         onSnapshot(iniciativaRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const dados = docSnap.data();
-                atualizarDisplay(dados.texto);
-            } else {
-                atualizarDisplay("");
-            }
+            if (docSnap.exists()) atualizarDisplay(docSnap.data().texto);
+            else atualizarDisplay("");
         });
     </script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const letreiros = document.querySelectorAll('.rodape-jornal');
-            const pixelsPorSegundo = 40; // <-- Ajuste a velocidade aqui (maior = mais rápido)
-
             const ajustarVelocidade = (elemento) => {
-                // Pega a largura total real (Texto + Padding do container)
-                const distanciaTotal = elemento.scrollWidth; 
-                
-                // Matemática mágica: Tempo = Distância / Velocidade
-                const tempo = distanciaTotal / pixelsPorSegundo;
-                
-                // Aplica o tempo calculado diretamente no CSS do elemento
+                const tempo = elemento.scrollWidth / 40;
                 elemento.style.animationDuration = `${tempo}s`;
             };
-
-            // Ajusta todos os letreiros na hora que o site abre
             letreiros.forEach(ajustarVelocidade);
+            new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    const node = m.target.nodeType === 3 ? m.target.parentNode : m.target;
+                    if (node.classList && node.classList.contains('rodape-jornal')) ajustarVelocidade(node);
+                });
+            }).observe(document.body, { childList: true, characterData: true, subtree: true });
 
-            // "Olheiro" (MutationObserver) para ficar vigiando as tags
-            // Se o seu Firebase atualizar os recados, ele recalcula a velocidade na mesma hora!
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach(mutation => {
-                    const node = mutation.target.nodeType === 3 ? mutation.target.parentNode : mutation.target;
-                    if (node.classList && node.classList.contains('rodape-jornal')) {
-                        ajustarVelocidade(node);
+            // Botão Fechar Painel (Mobile)
+            const painelDados = document.getElementById('painel-dados');
+            const btnFecharDadosMobile = document.getElementById('btn-fechar-dados-mobile');
+            if (btnFecharDadosMobile && painelDados) {
+                btnFecharDadosMobile.addEventListener('click', () => {
+                    painelDados.classList.add('hidden');
+                });
+            }
+
+            // Lógica do Chat de Dados (Dispara o Rolar Original)
+            const campoFormula = document.getElementById('input-formula');
+            const botaoRolarPrincipal = document.getElementById('btn-rolar-dados');
+
+            if (campoFormula) {
+                campoFormula.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); 
+                        if (botaoRolarPrincipal) botaoRolarPrincipal.click();
+                        setTimeout(() => { campoFormula.value = ""; }, 500);
                     }
                 });
-            });
+            }
 
-            // Manda o olheiro vigiar todos os recados
-            letreiros.forEach(letreiro => {
-                observer.observe(letreiro, { childList: true, characterData: true, subtree: true });
-            });
+            // Escuta o clique no botão principal apenas para forçar o scroll
+            const btnDados = document.getElementById('btn-dados');
+            const res = document.getElementById('resultado-rolagens');
+            if (btnDados && res && painelDados) {
+                btnDados.addEventListener('click', () => {
+                    setTimeout(() => {
+                        if (!painelDados.classList.contains('hidden')) {
+                            res.scrollTop = res.scrollHeight;
+                        }
+                    }, 50);
+                });
+            }
         });
     </script>
+
     <script type="module" src="js/dados.js"></script>
     <script type="module" src="js/online.js"></script>
     <script type="module" src="js/log_global.js"></script>
