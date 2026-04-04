@@ -83,17 +83,18 @@ function criarTemplateItem(nome = "", qtd = "1", desc = "") {
 if(btnAddItem) btnAddItem.addEventListener("click", () => criarTemplateItem());
 
 // ==========================================
-// GALERIA
+// GALERIA (CORRIGIDA)
 // ==========================================
 const containerImagens = document.getElementById("lista-imagens");
 const btnAddImagem = document.getElementById("add-imagem");
 
 function criarTemplateImagem(url = "", desc = "", oculta = false) {
     const div = document.createElement("div");
-    // Classe "group" adicionada para fazer a barra aparecer só no hover
-    div.className = `w-[45%] md:w-56 bg-gray-800 border-2 border-gray-700 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] group ${p.corBorder}`;
+    // Classe card-imagem restaurada e classes de layout do login removidas
+    div.className = "card-imagem bg-gray-800 border border-gray-700 rounded-xl p-3 flex flex-col relative animate-fade-in group shadow-lg";
+    
     div.innerHTML = `
-        <div class="flex justify-between items-center bg-gray-800/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-700 drag-img cursor-move opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 left-4 right-4 z-20 shadow-lg">
+        <div class="flex justify-between items-center bg-gray-900/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-700 drag-img cursor-move opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 left-4 right-4 z-20 shadow-lg">
             <div class="text-gray-400 hover:text-white px-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
             <div class="flex gap-1">
                 <button type="button" class="btn-toggle-img text-gray-400 hover:text-blue-400 font-bold px-2 rounded transition" title="Esconder/Mostrar Textos">👁️</button>
@@ -101,13 +102,13 @@ function criarTemplateImagem(url = "", desc = "", oculta = false) {
             </div>
         </div>
         
-        <div class="w-full flex-1 bg-gray-900 rounded-lg border border-gray-700 overflow-hidden relative flex items-center justify-center p-2 min-h-[150px]">
-            <img src="${url || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo'}" class="max-w-full max-h-[500px] object-contain m-auto preview-img transition-transform duration-500 hover:scale-105 rounded shadow-lg" alt="Arte">
+        <div class="w-full flex-1 bg-gray-900 rounded-lg border border-gray-700 overflow-hidden relative flex items-center justify-center p-2 min-h-[200px]">
+            <img src="${url || 'https://via.placeholder.com/400x300/1f2937/4b5563?text=Colar+Link+Abaixo'}" class="max-w-full max-h-[400px] object-contain m-auto preview-img transition-transform duration-500 hover:scale-105 rounded shadow-lg" alt="Arte">
         </div>
         
         <div class="img-detalhes flex flex-col gap-2 ${oculta ? 'hidden' : 'mt-3'}">
-            <input type="text" placeholder="Cole o link da imagem aqui..." value="${url}" class="w-full bg-gray-800 text-white text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 campo-img-url">
-            <textarea placeholder="Descrição da arte..." class="w-full bg-gray-800 text-gray-300 text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 resize-none h-20 campo-img-desc custom-scrollbar">${desc}</textarea>
+            <input type="text" placeholder="Cole o link da imagem aqui..." value="${url}" class="w-full bg-gray-900 text-white text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 campo-img-url">
+            <textarea placeholder="Descrição da arte..." class="w-full bg-gray-900 text-gray-300 text-sm p-2 rounded border border-gray-700 outline-none focus:border-blue-500 resize-none h-20 campo-img-desc custom-scrollbar">${desc}</textarea>
         </div>
     `;
 
@@ -189,13 +190,11 @@ window.renderizarQuadroAtual = function() {
 function criarElementoNota(notaObj, arrayPai) {
     const div = document.createElement("div");
     div.dataset.id = notaObj.id;
-    // IMPORTANTE: A classe "group" foi adicionada para os botões aparecerem só quando passar o mouse
     div.className = "card-nota group bg-gray-900 p-0 rounded-lg border border-gray-700 shadow-xl relative animate-fade-in flex flex-col overflow-hidden focus-within:border-purple-500 transition-colors w-full";
 
     const btnRemover = `<button type="button" class="text-gray-500 hover:text-red-500 font-bold px-1 transition-colors btn-remover" title="Apagar">&times;</button>`;
 
     if (notaObj.tipo === "simples") {
-        // TIPO 1: POST-IT (Sem título, botões flutuantes que aparecem no hover)
         div.innerHTML = `
             <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <div class="drag-nota cursor-move text-gray-400 hover:text-white p-1.5 bg-gray-800 rounded shadow border border-gray-700"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>
@@ -206,7 +205,6 @@ function criarElementoNota(notaObj, arrayPai) {
         div.querySelector("textarea").oninput = (e) => { notaObj.conteudo = e.target.value; alertarSalvar(); };
 
     } else if (notaObj.tipo === "pasta") {
-        // TIPO 3: PASTA MINIMALISTA (Só título, duplo clique para abrir)
         div.classList.replace("focus-within:border-purple-500", "focus-within:border-yellow-500");
         if(!notaObj.itens) notaObj.itens = [];
         
@@ -219,21 +217,17 @@ function criarElementoNota(notaObj, arrayPai) {
         `;
         div.querySelector("input").oninput = (e) => { notaObj.titulo = e.target.value; alertarSalvar(); };
         
-        // A Mágica do Duplo Clique
         const abrirPasta = () => {
             window.trilhaAtual.push({ nome: `📁 ${notaObj.titulo || "Pasta"}`, ref: notaObj.itens });
             window.renderizarQuadroAtual();
         };
         
-        // O duplo clique na barrinha inteira (ou no input) abre a pasta
         div.querySelector(".drag-nota").ondblclick = abrirPasta;
 
     } else if (notaObj.tipo === "accordion") {
-        // TIPO 2: ACORDEÃO (Agora com Memória de Estado)
         div.classList.replace("focus-within:border-purple-500", "focus-within:border-blue-500");
         if(!notaObj.itens) notaObj.itens = [];
 
-        // Verifica a memória: ele estava aberto ou fechado da última vez?
         const isAberto = notaObj.aberto === true;
         const rotacaoSeta = isAberto ? "rotate(0deg)" : "rotate(-90deg)";
         const classeCorpo = isAberto ? "" : "hidden";
@@ -259,19 +253,18 @@ function criarElementoNota(notaObj, arrayPai) {
 
         div.querySelector("input").oninput = (e) => { notaObj.titulo = e.target.value; alertarSalvar(); };
         
-        // A mágica acontece aqui: ao clicar, ele salva na memória se ficou aberto ou fechado
         btnToggle.onclick = () => {
             const vaiAbrir = corpo.classList.contains("hidden");
             if (vaiAbrir) {
                 corpo.classList.remove("hidden");
                 btnToggle.style.transform = "rotate(0deg)";
-                notaObj.aberto = true; // Salva no HD que está aberto
+                notaObj.aberto = true;
             } else {
                 corpo.classList.add("hidden");
                 btnToggle.style.transform = "rotate(-90deg)";
-                notaObj.aberto = false; // Salva no HD que está fechado
+                notaObj.aberto = false;
             }
-            alertarSalvar(); // Avisa o sistema que teve uma alteração para o jogador clicar em Salvar
+            alertarSalvar(); 
         };
 
         const renderizarFilhosAc = () => {
@@ -577,7 +570,6 @@ async function carregarFicha() {
             const sanitizarNotas = (arr) => {
                 arr.forEach(n => {
                     if (!n.id) n.id = 'nota_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    // Migração de código velho para o novo se necessário
                     if (n.tipo === 'pasta' && n.paginas) {
                         n.itens = n.paginas.map(txt => ({ id: 'nota_'+Math.random().toString(36).substr(2, 9), tipo: 'simples', titulo: '', conteudo: txt }));
                         delete n.paginas;
@@ -644,12 +636,11 @@ if(btnSalvar) {
                     galeria.push({
                         url: el.querySelector(".campo-img-url").value, 
                         desc: el.querySelector(".campo-img-desc").value,
-                        oculta: el.querySelector(".img-detalhes").classList.contains("hidden") // <--- A MÁGICA DE SALVAR
+                        oculta: el.querySelector(".img-detalhes").classList.contains("hidden")
                     });
                 });
                 dadosParaSalvar.galeria = galeria;
 
-        // SALVA AS ANOTAÇÕES: É só copiar o "HD Virtual" inteiro pra nuvem, numa linha só!
         dadosParaSalvar.anotacoes = window.sistemaNotas;
 
         const ordemGrid = [];
@@ -660,7 +651,7 @@ if(btnSalvar) {
             ordemGrid.push({ 
                 id: secao.id, 
                 tamanho: tamanho,
-                minimizada: secao.classList.contains('minimizada') // <-- NOVA LINHA AQUI
+                minimizada: secao.classList.contains('minimizada')
             });
         });
         dadosParaSalvar.ordem_grid = ordemGrid;
@@ -678,7 +669,7 @@ if(btnSalvar) {
     });
 }
 
-// Inicia Calculadora (Vem do arquivo externa)
+// Inicia Calculadora
 iniciarCalculadora();
 window.addDigito = addDigito;
 window.limparCalc = limparCalc;
@@ -787,16 +778,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (campoFormula) {
         campoFormula.addEventListener('keydown', (e) => {
-            // Se o jogador apertar a tecla Enter ou o botão "Ir" do teclado mobile
             if (e.key === 'Enter') {
-                e.preventDefault(); // Impede que a página recarregue
-                
-                // Dispara o clique no botão invisível que já tem a lógica do seu dados.js
+                e.preventDefault(); 
                 if (botaoInvisivel) {
                     botaoInvisivel.click();
-                    
-                    // Limpa o campo após rolar para a próxima jogada
-                    setTimeout(() => { campoFormula.value = ""; }, 10);
+                    setTimeout(() => { campoFormula.value = ""; }, 500);
                 }
             }
         });
