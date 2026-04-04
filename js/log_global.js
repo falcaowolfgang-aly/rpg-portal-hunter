@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.innerHTML = `
             <div id="modalLogDados" class="hidden bg-gray-900 border-2 border-blue-900 w-80 rounded-xl shadow-2xl overflow-hidden animate-fade-in select-none">
                 <div id="logHeader" class="bg-blue-900/50 p-2 flex justify-between items-center cursor-grab active:cursor-grabbing border-b border-blue-800">
-                    <span class="text-[10px] font-black text-blue-200 uppercase tracking-[0.2em] ml-2">Histórico de Dados</span>
+                    <span class="text-base font-black text-blue-200 uppercase tracking-[0.2em] ml-2">Histórico de Dados</span>
                     <button id="fecharLog" class="text-blue-300 hover:text-white px-2 font-bold">&times;</button>
                 </div>
                 <div id="lista-log-dados" class="flex flex-col gap-2 p-4 max-h-80 overflow-y-auto custom-scrollbar bg-gray-950/50">

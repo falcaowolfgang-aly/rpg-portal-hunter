@@ -189,7 +189,7 @@ async function atualizarVisaoGeral() {
     // Tira o efeito de carregando do botão e restaura o texto
     setTimeout(() => {
         if (icone) icone.classList.remove("animate-spin");
-        if (textoBtn) textoBtn.innerText = "Atualizar Painel";
+        if (textoBtn) textoBtn.innerText = "Atualizar";
     }, 500); // Pequeno atraso só pro mestre perceber que a ação ocorreu
 }
 
