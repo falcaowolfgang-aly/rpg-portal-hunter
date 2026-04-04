@@ -91,8 +91,7 @@ const btnAddImagem = document.getElementById("add-imagem");
 function criarTemplateImagem(url = "", desc = "", oculta = false) {
     const div = document.createElement("div");
     // Classe "group" adicionada para fazer a barra aparecer só no hover
-    div.className = "card-imagem group bg-gray-900 p-2 rounded-xl border border-gray-700 flex flex-col relative animate-fade-in shadow-xl";
-
+    div.className = `w-[45%] md:w-56 bg-gray-800 border-2 border-gray-700 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(0,0,0,0.5)] group ${p.corBorder}`;
     div.innerHTML = `
         <div class="flex justify-between items-center bg-gray-800/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-700 drag-img cursor-move opacity-0 group-hover:opacity-100 transition-opacity absolute top-4 left-4 right-4 z-20 shadow-lg">
             <div class="text-gray-400 hover:text-white px-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></div>

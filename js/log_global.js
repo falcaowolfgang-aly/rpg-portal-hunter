@@ -133,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (nome.includes("satsu")) corAutor = "text-red-500";
                 else if (nome.includes("yugen")) corAutor = "text-blue-500";
                 else if (nome.includes("ace")) corAutor = "text-green-500";
+                else if (nome.includes("mestre")) corAutor = "text-white"; // <-- COR DO MESTRE AQUI
             }
             
             html += `

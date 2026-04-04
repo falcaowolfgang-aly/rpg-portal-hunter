@@ -19,7 +19,9 @@ const perfis = [
     { nome: "Satsu", corBorder: "hover:border-red-500", corGroup: "group-hover:border-red-500", corText: "group-hover:text-red-400" },
     { nome: "Yugen", corBorder: "hover:border-blue-500", corGroup: "group-hover:border-blue-500", corText: "group-hover:text-blue-400" },
     { nome: "Ace", corBorder: "hover:border-green-500", corGroup: "group-hover:border-green-500", corText: "group-hover:text-green-400" },
-    { nome: "Takahashi", corBorder: "hover:border-purple-500", corGroup: "group-hover:border-purple-500", corText: "group-hover:text-purple-400" }
+    { nome: "Takahashi", corBorder: "hover:border-purple-500", corGroup: "group-hover:border-purple-500", corText: "group-hover:text-purple-400" },
+    // O PERFIL DO MESTRE ADICIONADO AQUI COM TONS DE BRANCO/CINZA
+    { nome: "Mestre", corBorder: "hover:border-gray-300", corGroup: "group-hover:border-gray-300", corText: "group-hover:text-gray-200" }
 ];
 
 // Espera a tela carregar 100% para começar a pintar os perfis
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Se estiver na página errada, não faz nada
     if (!lista) return;
 
-    // 1. Cria os 4 cards na tela
+    // 1. Cria os cards na tela (agora são 5!)
     perfis.forEach(p => {
         const div = document.createElement('div');
         div.id = `card-${p.nome}`;
@@ -105,7 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEmergencia = document.getElementById('btn-emergencia');
     if (btnEmergencia) {
         btnEmergencia.addEventListener('click', async () => {
-            await setDoc(onlineRef, { Satsu: false, Yugen: false, Ace: false, Takahashi: false }, { merge: true });
+            // Adicionamos o Mestre: false aqui para ele resetar junto com os outros!
+            await setDoc(onlineRef, { Satsu: false, Yugen: false, Ace: false, Takahashi: false, Mestre: false }, { merge: true });
             alert("Sessões resetadas! Todos os perfis foram liberados.");
         });
     }
